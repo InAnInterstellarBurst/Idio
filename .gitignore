@@ -1,0 +1,6 @@
+bin/
+.ccls-cache/
+.idea/
+.vscode/
+
+*.directory
