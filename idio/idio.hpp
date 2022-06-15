@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <span>
 #include <tuple>
 #include <string>
 #include <memory>

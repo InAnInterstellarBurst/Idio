@@ -12,7 +12,7 @@ namespace Idio
 {
 	class Event {};
 
-	extern void main(int argc, char** argv);
+	extern void main(const std::span<char*>& args);
 
 	struct ApplicationInfo 
 	{

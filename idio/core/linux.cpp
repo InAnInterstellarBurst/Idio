@@ -10,6 +10,7 @@
 
 int main(int argc, char** argv)
 {
-	Idio::main(argc, argv);
+	std::span<char*> args(argv, static_cast<size_t>(argc));
+	Idio::main(args);
 	return EXIT_SUCCESS;
 }

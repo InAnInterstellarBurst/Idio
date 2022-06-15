@@ -4,18 +4,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if(WIN32)
-	set(OS_SRC core/win32.cpp)
-else()
-	set(OS_SRC core/linux.cpp)
-endif()
-
 file(GLOB CORE_GLOB core/*.cpp core/*.hpp)
+if(WIN32)
+	list(FILTER CORE_GLOB EXCLUDE REGEX ".*linux\\.cpp$")
+else()
+	list(FILTER CORE_GLOB EXCLUDE REGEX ".*win32\\.cpp$")
+endif()
 
 set(SRCS
 	pch.hpp idio.hpp
 	${CORE_GLOB}
-	${OS_SRC}
 	.licenseheader
 )
 
@@ -24,10 +22,10 @@ target_precompile_headers(idio PRIVATE pch.hpp)
 
 target_link_libraries(idio
 	PRIVATE
+		fmt::fmt
 		project_settings
 	PUBLIC
 		Vulkan::Vulkan
-		spdlog
 )
 
 target_include_directories(idio INTERFACE ${CMAKE_SOURCE_DIR})

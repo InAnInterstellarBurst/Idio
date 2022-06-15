@@ -25,7 +25,7 @@ target_compile_definitions(project_settings INTERFACE ID_DEBUG=$<CONFIG:DEBUG> _
 
 if(WIN32)
 	target_compile_definitions(project_settings INTERFACE ID_DESKTOP=1 ID_WIN32=1 ID_LINUX=0)
-elseif(LINUX)
+else()
 	target_compile_definitions(project_settings INTERFACE ID_DESKTOP=1 ID_LINUX=1 ID_WIN32=0)
 endif()
 
@@ -35,8 +35,7 @@ else()
 	target_compile_definitions(project_settings INTERFACE ID_DEBUG=0)
 endif()
 
-
-add_subdirectory(dep/spdlog)
+add_subdirectory(dep/fmt)
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(idio)
@@ -44,4 +43,4 @@ if(NOT ID_NOTEST)
 	add_subdirectory(testapp)
 endif()
 
-set_target_properties(spdlog PROPERTIES FOLDER "Dependencies")
+set_target_properties(fmt PROPERTIES FOLDER "Dependencies")
