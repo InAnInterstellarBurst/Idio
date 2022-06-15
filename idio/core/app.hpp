@@ -12,13 +12,13 @@ namespace Idio
 {
 	class Event {};
 
+	using CommandArgs = std::vector<char*>;
+	extern void main(const CommandArgs& args);
+
 	struct ApplicationInfo 
 	{
 		std::string name;
 	};
-
-	using CommandArgs = std::vector<char*>;
-	extern void entry_point(const CommandArgs& args);
 
 	template<class T>
 	concept Application = requires(T t, const Event& e)
@@ -30,11 +30,12 @@ namespace Idio
 		requires std::same_as<decltype(t.appInfo), const ApplicationInfo*>;
 	};
 
+	
 	template<Application App>
-	void run(App& app, std::string&& name)
+	void run(App& app, std::string name)
 	{
 		const ApplicationInfo appInfo = {
-			.name = std::forward<std::string>(name)
+			.name = std::move(name)
 		};
 
 		app.appInfo = &appInfo;

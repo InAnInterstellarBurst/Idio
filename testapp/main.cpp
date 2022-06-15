@@ -20,7 +20,7 @@ public:
 	const Idio::ApplicationInfo* appInfo = nullptr;
 };
 
-void Idio::entry_point(const Idio::CommandArgs& args)
+void Idio::main(const Idio::CommandArgs& args)
 {
 	for(char* arg : args) {
 		std::cout << arg << std::endl;

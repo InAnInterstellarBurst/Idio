@@ -11,7 +11,7 @@
 int main(int argc, char** argv)
 {
 	Idio::CommandArgs args(static_cast<size_t>(argc));
-	std::copy(&argv[0], &argv[argc - 1], std::back_inserter(args));
-	Idio::entry_point(args);
+	args.insert(args.end(), &argv[0], &argv[argc - 1]);
+	Idio::main(args);
 	return EXIT_SUCCESS;
 }

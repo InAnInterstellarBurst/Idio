@@ -10,6 +10,7 @@
 
 #include <tuple>
 #include <string>
+#include <memory>
 #include <vector>
 
 #include "core/app.hpp"
