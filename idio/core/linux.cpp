@@ -10,8 +10,6 @@
 
 int main(int argc, char** argv)
 {
-	Idio::CommandArgs args(static_cast<size_t>(argc));
-	args.insert(args.end(), &argv[0], &argv[argc - 1]);
-	Idio::main(args);
+	Idio::main(argc, argv);
 	return EXIT_SUCCESS;
 }

@@ -12,8 +12,7 @@ namespace Idio
 {
 	class Event {};
 
-	using CommandArgs = std::vector<char*>;
-	extern void main(const CommandArgs& args);
+	extern void main(int argc, char** argv);
 
 	struct ApplicationInfo 
 	{
