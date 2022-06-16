@@ -37,6 +37,7 @@ namespace Idio
 		};
 
 		bool open = true;
+
 		app.appInfo = &appInfo;
 		app.init();
 		while(open) {
