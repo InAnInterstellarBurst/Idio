@@ -7,7 +7,6 @@
  */
 
 #include <idio/idio.hpp>
-#include <iostream>
 
 class App
 {
@@ -39,5 +38,7 @@ void Idio::main(const std::span<char*>& args)
 	}
 
 	App app;
-	Idio::run(app, std::string("Hello"));
+	if(!Idio::run(app, std::string("Hello"))) {
+		std::cout << "Error!\n";
+	}
 }

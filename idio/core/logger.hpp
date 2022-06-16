@@ -8,18 +8,21 @@
 
 #pragma once
 
-#include <span>
-#include <tuple>
-#include <string>
-#include <memory>
-#include <vector>
-#include <iostream> //>>:(
-
-#include <SDL.h>
-
-#include "core/app.hpp"
-
 namespace Idio
 {
-	constexpr std::tuple<uint32_t, uint32_t, uint32_t> g_EngineVersion { 0, 0, 0 };
+	struct ApplicationInfo;
+
+	class Logger
+	{
+		Logger(std::string name, const ApplicationInfo& appinfo);
+		~Logger();
+
+	private:
+		std::string m_name;
+
+		void log_base(const std::string& msg);
+		void 
+
+		static std::ofstream s_Logfile;
+	};
 }

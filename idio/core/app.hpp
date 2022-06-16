@@ -8,6 +8,7 @@
 
 #pragma once
 #include "event.hpp"
+#include "logger.hpp"
 
 namespace Idio
 {
@@ -16,6 +17,7 @@ namespace Idio
 	struct ApplicationInfo 
 	{
 		std::string name;
+		std::string prefPath;
 	};
 
 	template<class T>
@@ -30,30 +32,34 @@ namespace Idio
 
 	
 	template<Application App>
-	void run(App& app, std::string name)
+	bool run(App& app, std::string name)
 	{
-		const ApplicationInfo appInfo = {
-			.name = std::move(name)
+		char* prefpath = SDL_GetPrefPath("Idio", name.c_str());
+		if(prefpath == nullptr) {
+			std::cout << "[Init error]: " << SDL_GetError() << std::endl;
+			return false;
+		}
+
+		const ApplicationInfo appInfo{
+			.name = std::move(name),
+			.prefPath = std::string(prefpath)
 		};
 
+		SDL_free(prefpath);
 		bool open = true;
 
 		app.appInfo = &appInfo;
 		app.init();
 		while(open) {
-			Event evt = poll_evts();
-			bool handled = evt_handler(evt, 
+			app.tick();
+
+			poll_evts(app,
 				[&](const QuitEvent& qe) -> bool { open = false; return true; },
 				[](const WindowClosedEvent& wce) -> bool { return false; }
 			);
-
-			if(!handled) {
-				app.event_proc(evt);
-			}
-			
-			app.tick();
 		}
 
 		app.deinit();
+		return true;
 	}
 }

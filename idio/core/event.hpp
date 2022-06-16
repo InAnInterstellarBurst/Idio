@@ -29,6 +29,7 @@ namespace Idio
 		uint32_t id;
 	};
 
+
 	using Event = std::variant<QuitEvent, WindowClosedEvent>;
 	
 	template<typename... Handlers>
@@ -37,6 +38,31 @@ namespace Idio
 		return std::visit(overloaded{ std::forward<Handlers>(h)... }, e);
 	}
 
-	Event poll_evts();
-	void post_quit_evt();
+	inline void post_quit_evt()
+	{
+		SDL_Event quit = { .type = SDL_QUIT };
+		SDL_PushEvent(&quit);
+	}
+
+	template<class App, typename... Handlers>
+	void poll_evts(App& a, Handlers&&... h)
+	{
+		SDL_Event sdlEvt;
+		while(SDL_PollEvent(&sdlEvt)) {
+			Event translatedEvent;
+			switch(sdlEvt.type) {
+			case SDL_QUIT:
+				translatedEvent = QuitEvent{};
+				break;
+			default:
+				translatedEvent = WindowClosedEvent{ 3 };
+				break;
+			}
+
+			bool handled = evt_handler(translatedEvent, std::forward<Handlers>(h)...);
+			if(!handled) {
+				a.event_proc(translatedEvent);
+			}
+		}
+	}
 }

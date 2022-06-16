@@ -18,10 +18,10 @@ void reopen_console()
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
 
+	HANDLE stdhdl = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD cflags = 0;
-	GetConsoleDisplayMode(&cflags);
-	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),
-		ENABLE_VIRTUAL_TERMINAL_PROCESSING | cflags);
+	GetConsoleMode(stdhdl, &cflags);
+	SetConsoleMode(stdhdl, ENABLE_VIRTUAL_TERMINAL_PROCESSING | cflags);
 }
 
 int WINAPI WinMain(HINSTANCE p0, HINSTANCE p1, LPSTR p2, int p3)
