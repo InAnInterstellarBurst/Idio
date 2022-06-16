@@ -22,9 +22,9 @@ target_precompile_headers(idio PRIVATE pch.hpp)
 
 target_link_libraries(idio
 	PRIVATE
-		fmt::fmt
 		project_settings
 	PUBLIC
+		fmt::fmt
 		SDL2-static
 		Vulkan::Vulkan
 )

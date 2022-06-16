@@ -18,6 +18,7 @@ namespace Idio
 	{
 		std::string name;
 		std::string prefPath;
+		std::unique_ptr<Logger> gameLogger;
 	};
 
 	template<class T>
@@ -34,23 +35,29 @@ namespace Idio
 	template<Application App>
 	bool run(App& app, std::string name)
 	{
-		char* prefpath = SDL_GetPrefPath("Idio", name.c_str());
+		char* prefpath = SDL_GetPrefPath("idio", name.c_str());
 		if(prefpath == nullptr) {
 			std::cout << "[Init error]: " << SDL_GetError() << std::endl;
 			return false;
 		}
 
-		const ApplicationInfo appInfo{
+		ApplicationInfo appInfo{
 			.name = std::move(name),
-			.prefPath = std::string(prefpath)
+			.prefPath = prefpath,
+			.gameLogger = std::make_unique<Logger>(appInfo.name, appInfo)
 		};
 
 		SDL_free(prefpath);
-		bool open = true;
+		
+		s_EngineLogger = std::make_unique<Logger>("Idio", appInfo);
 
 		app.appInfo = &appInfo;
 		app.init();
+		bool open = true;
 		while(open) {
+			s_EngineLogger->critical("Hi {}", 3);
+			s_EngineLogger->trace("Hi {}", 3);
+			
 			app.tick();
 
 			poll_evts(app,

@@ -16,6 +16,7 @@
 #include <iostream> //>>:(
 
 #include <SDL.h>
+#include <fmt/format.h>
 
 #include "core/app.hpp"
 
