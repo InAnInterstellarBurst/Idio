@@ -13,9 +13,21 @@ class App
 {
 public:
 	void init() {}
-	void tick() {}
-	void deinit() {}
-	void event_proc(const Idio::Event& e) {}
+	void tick() 
+	{
+		std::cout << "hi\n";
+		Idio::post_quit_evt();
+	}
+
+	void deinit() 
+	{}
+
+	void event_proc(const Idio::Event& e) 
+	{
+		if(std::holds_alternative<Idio::WindowClosedEvent>(e)) {
+			std::cout << "Whay\n";
+		}
+	}
 
 	const Idio::ApplicationInfo* appInfo = nullptr;
 };

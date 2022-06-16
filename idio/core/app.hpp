@@ -7,11 +7,10 @@
  */
 
 #pragma once
+#include "event.hpp"
 
 namespace Idio
 {
-	class Event {};
-
 	extern void main(const std::span<char*>& args);
 
 	struct ApplicationInfo 
@@ -37,8 +36,23 @@ namespace Idio
 			.name = std::move(name)
 		};
 
+		bool open = true;
 		app.appInfo = &appInfo;
 		app.init();
+		while(open) {
+			Event evt = poll_evts();
+			bool handled = evt_handler(evt, 
+				[&](const QuitEvent& qe) -> bool { open = false; return true; },
+				[](const WindowClosedEvent& wce) -> bool { return false; }
+			);
+
+			if(!handled) {
+				app.event_proc(evt);
+			}
+			
+			app.tick();
+		}
+
 		app.deinit();
 	}
 }
