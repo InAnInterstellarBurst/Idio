@@ -10,12 +10,26 @@
 
 namespace Idio
 {
+	class Context;
+	
+	struct Version
+	{
+		uint32_t major;
+		uint32_t minor;
+		uint32_t patch;
+		
+		uint32_t as_vk_ver() const { return VK_MAKE_VERSION(major, minor, patch); }
+	};
+
 	struct ApplicationInfo 
 	{
 		std::string name;
+		Version version;
+
 		std::string prefPath;
 		std::unique_ptr<Logger> gameLogger;
 		std::unique_ptr<Window> mainWindow;
+		std::unique_ptr<Context> context;
 	};
 
 	template<class T>
@@ -28,31 +42,12 @@ namespace Idio
 		requires std::same_as<decltype(t.appInfo), const ApplicationInfo*>;
 	};
 
+	ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name);
+
 	template<Application App>
-	void run(App& app, const WindowCreateInfo& wci, std::string name)
+	void run(App& app, const WindowCreateInfo& wci, Version v, std::string name)
 	{
-		char* prefpath = SDL_GetPrefPath("idio", name.c_str());
-		if(prefpath == nullptr) {
-			std::cout << "[Init error]: " << SDL_GetError() << std::endl;
-			return;
-		}
-
-		ApplicationInfo appInfo{
-			.name = std::move(name),
-			.prefPath = prefpath,
-			.gameLogger = std::make_unique<Logger>(appInfo.name, appInfo),
-			.mainWindow = nullptr
-		};
-
-		SDL_free(prefpath);
-		
-		s_EngineLogger = std::make_unique<Logger>("Idio", appInfo);
-		if(SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0) {
-			s_EngineLogger->critical("Failed to init SDL: {}", SDL_GetError());
-			crash();
-		}
-
-		appInfo.mainWindow = std::make_unique<Window>(wci);
+		auto appInfo = init_engine(wci, std::move(v), std::move(name));
 		app.appInfo = &appInfo;
 		app.init();
 		bool open = true;

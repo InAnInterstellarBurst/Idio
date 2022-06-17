@@ -4,6 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+file(GLOB GFX_GLOB gfx/*.cpp gfx/*.hpp)
 file(GLOB CORE_GLOB core/*.cpp core/*.hpp)
 if(WIN32)
 	list(FILTER CORE_GLOB EXCLUDE REGEX ".*linux\\.cpp$")
@@ -14,6 +15,7 @@ endif()
 set(SRCS
 	idio.hpp
 	${CORE_GLOB}
+	${GFX_GLOB}
 	.licenseheader
 )
 

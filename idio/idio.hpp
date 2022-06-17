@@ -19,17 +19,22 @@
 #include <iostream>
 #include <string_view>
 
+#define VULKAN_HPP_NO_EXCEPTIONS
+#include <vulkan/vulkan.hpp>
+
 #include <SDL.h>
 #include <fmt/format.h>
 
 #include "core/logger.hpp"
 #include "core/event.hpp"
 #include "core/window.hpp"
-#include "core/app.hpp"
+#include "core/app.hpp" // Having you in here is a bit piss but ah well
+
+#include "gfx/vkutl.hpp"
 
 namespace Idio
 {
 	extern void main(const std::span<char*>& args);
-	
-	constexpr std::tuple<uint32_t, uint32_t, uint32_t> g_EngineVersion { 0, 0, 0 };
+
+	constexpr Version s_EngineVersion { 0, 0, 0 };
 }

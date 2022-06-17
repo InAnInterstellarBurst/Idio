@@ -37,7 +37,7 @@ namespace Idio
 		SDL_DestroyWindow(m_handle);
 	}
 	
-	void Window::close()
+	void Window::post_close_evt()
 	{
 		SDL_Event close{ .type = SDL_WINDOWEVENT };
 		close.window.event = SDL_WINDOWEVENT_CLOSE;

@@ -7,16 +7,16 @@
  */
 
 #include <idio/idio.hpp>
+#include <gfx/context.hpp>
 
 class App
 {
 public:
 	void init() 
 	{
-		m_two = std::make_unique<Idio::Window>(Idio::WindowCreateInfo{ .width = 300, .height = 300, .title = "Woo" });
 	}
 	
-	void tick() 
+	void tick()
 	{
 	}
 
@@ -28,21 +28,15 @@ public:
 	{
 		Idio::evt_handler(e, 
 			[](const Idio::QuitEvent& qe) -> bool { return true; },
-			[&](const Idio::WindowClosedEvent& ce) -> bool {
-				if(ce.id == m_two->get_id()) {
-					m_two.reset();
-				}
-				return true;
-			}
+			[](const Idio::WindowClosedEvent& ce) -> bool { return true; }
 		);
 	}
 
-	std::unique_ptr<Idio::Window> m_two = nullptr;
 	const Idio::ApplicationInfo* appInfo = nullptr;
 };
 
 void Idio::main(const std::span<char*>& args)
 {
 	App app;
-	Idio::run(app, {}, std::string("Hello"));
+	Idio::run(app, {}, Idio::Version{0, 0, 1}, std::string("Hello"));
 }

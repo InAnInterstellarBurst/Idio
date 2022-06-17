@@ -41,7 +41,7 @@ namespace Idio
 		Window(const WindowCreateInfo& wci);
 		~Window();
 
-		void close();
+		void post_close_evt();
 		void set_fullscreen_state(FullscreenState s);
 		//void create_swapchain(const Context& c);
 
