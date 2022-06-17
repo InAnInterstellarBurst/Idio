@@ -21,8 +21,11 @@ namespace Idio
 		Critical
 	};
 
+	[[noreturn]] void crash();
+
 	class Logger
 	{
+		friend void Idio::crash();
 	public:
 		Logger(std::string name, const ApplicationInfo& appinfo);
 

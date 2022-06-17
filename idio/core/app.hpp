@@ -7,13 +7,9 @@
  */
 
 #pragma once
-#include "event.hpp"
-#include "logger.hpp"
 
 namespace Idio
 {
-	extern void main(const std::span<char*>& args);
-
 	struct ApplicationInfo 
 	{
 		std::string name;
@@ -31,14 +27,13 @@ namespace Idio
 		requires std::same_as<decltype(t.appInfo), const ApplicationInfo*>;
 	};
 
-	
 	template<Application App>
-	bool run(App& app, std::string name)
+	void run(App& app, std::string name)
 	{
 		char* prefpath = SDL_GetPrefPath("idio", name.c_str());
 		if(prefpath == nullptr) {
 			std::cout << "[Init error]: " << SDL_GetError() << std::endl;
-			return false;
+			return;
 		}
 
 		ApplicationInfo appInfo{
@@ -67,6 +62,6 @@ namespace Idio
 		}
 
 		app.deinit();
-		return true;
 	}
+
 }

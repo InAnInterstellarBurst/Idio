@@ -14,12 +14,14 @@ public:
 	void init() {}
 	void tick() 
 	{
-		std::cout << "hi\n";
-		Idio::post_quit_evt();
+		appInfo->gameLogger->trace("hi");
+		Idio::crash();
 	}
 
 	void deinit() 
-	{}
+	{
+		appInfo->gameLogger->info("Nice n clean");
+	}
 
 	void event_proc(const Idio::Event& e) 
 	{
@@ -38,7 +40,5 @@ void Idio::main(const std::span<char*>& args)
 	}
 
 	App app;
-	if(!Idio::run(app, std::string("Hello"))) {
-		std::cout << "Error!\n";
-	}
+	Idio::run(app, std::string("Hello"));
 }

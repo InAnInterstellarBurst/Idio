@@ -12,13 +12,13 @@ else()
 endif()
 
 set(SRCS
-	pch.hpp idio.hpp
+	idio.hpp
 	${CORE_GLOB}
 	.licenseheader
 )
 
 add_library(idio STATIC ${SRCS})
-target_precompile_headers(idio PRIVATE pch.hpp)
+target_precompile_headers(idio PRIVATE idio.hpp)
 
 target_link_libraries(idio
 	PRIVATE

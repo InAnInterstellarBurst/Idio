@@ -6,13 +6,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "pch.hpp"
+#include "idio.hpp"
 #include <fstream>
+#include <exception>
 
 namespace Idio
 {
 	std::unique_ptr<Logger> s_EngineLogger = nullptr;
 	
+	void crash()
+	{
+		s_EngineLogger->critical("\n---------------------------------------\n| Engine requested a crash (see logs) |\n---------------------------------------");
+		Logger::s_Logfile.close(); // Ensure logs get written
+		std::terminate();
+	}
+
+
 	std::ofstream Logger::s_Logfile;
 
 	Logger::Logger(std::string name, const ApplicationInfo& appinfo) :

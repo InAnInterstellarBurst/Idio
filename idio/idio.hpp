@@ -9,18 +9,26 @@
 #pragma once
 
 #include <span>
+#include <array>
 #include <tuple>
 #include <string>
 #include <memory>
 #include <vector>
-#include <iostream> //>>:(
+#include <memory>
+#include <utility>
+#include <iostream>
+#include <string_view>
 
 #include <SDL.h>
 #include <fmt/format.h>
 
+#include "core/logger.hpp"
+#include "core/event.hpp"
 #include "core/app.hpp"
 
 namespace Idio
 {
+	extern void main(const std::span<char*>& args);
+	
 	constexpr std::tuple<uint32_t, uint32_t, uint32_t> g_EngineVersion { 0, 0, 0 };
 }
