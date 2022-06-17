@@ -11,34 +11,38 @@
 class App
 {
 public:
-	void init() {}
+	void init() 
+	{
+		m_two = std::make_unique<Idio::Window>(Idio::WindowCreateInfo{ .width = 300, .height = 300, .title = "Woo" });
+	}
+	
 	void tick() 
 	{
-		appInfo->gameLogger->trace("hi");
-		Idio::crash();
 	}
 
 	void deinit() 
 	{
-		appInfo->gameLogger->info("Nice n clean");
 	}
 
 	void event_proc(const Idio::Event& e) 
 	{
-		if(std::holds_alternative<Idio::WindowClosedEvent>(e)) {
-			std::cout << "Whay\n";
-		}
+		Idio::evt_handler(e, 
+			[](const Idio::QuitEvent& qe) -> bool { return true; },
+			[&](const Idio::WindowClosedEvent& ce) -> bool {
+				if(ce.id == m_two->get_id()) {
+					m_two.reset();
+				}
+				return true;
+			}
+		);
 	}
 
+	std::unique_ptr<Idio::Window> m_two = nullptr;
 	const Idio::ApplicationInfo* appInfo = nullptr;
 };
 
 void Idio::main(const std::span<char*>& args)
 {
-	for(char* arg : args) {
-		std::cout << arg << std::endl;
-	}
-
 	App app;
-	Idio::run(app, std::string("Hello"));
+	Idio::run(app, {}, std::string("Hello"));
 }

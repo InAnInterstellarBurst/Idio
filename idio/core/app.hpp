@@ -15,6 +15,7 @@ namespace Idio
 		std::string name;
 		std::string prefPath;
 		std::unique_ptr<Logger> gameLogger;
+		std::unique_ptr<Window> mainWindow;
 	};
 
 	template<class T>
@@ -28,7 +29,7 @@ namespace Idio
 	};
 
 	template<Application App>
-	void run(App& app, std::string name)
+	void run(App& app, const WindowCreateInfo& wci, std::string name)
 	{
 		char* prefpath = SDL_GetPrefPath("idio", name.c_str());
 		if(prefpath == nullptr) {
@@ -39,29 +40,44 @@ namespace Idio
 		ApplicationInfo appInfo{
 			.name = std::move(name),
 			.prefPath = prefpath,
-			.gameLogger = std::make_unique<Logger>(appInfo.name, appInfo)
+			.gameLogger = std::make_unique<Logger>(appInfo.name, appInfo),
+			.mainWindow = nullptr
 		};
 
 		SDL_free(prefpath);
 		
 		s_EngineLogger = std::make_unique<Logger>("Idio", appInfo);
+		if(SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0) {
+			s_EngineLogger->critical("Failed to init SDL: {}", SDL_GetError());
+			crash();
+		}
 
+		appInfo.mainWindow = std::make_unique<Window>(wci);
 		app.appInfo = &appInfo;
 		app.init();
 		bool open = true;
 		while(open) {
-			s_EngineLogger->critical("Hi {}", 3);
-			s_EngineLogger->trace("Hi {}", 3);
-			
 			app.tick();
 
 			poll_evts(app,
-				[&](const QuitEvent& qe) -> bool { open = false; return true; },
-				[](const WindowClosedEvent& wce) -> bool { return false; }
+				[&](const QuitEvent& qe) -> bool { 
+					open = false; 
+					return true; 
+				},
+				
+				[&](const WindowClosedEvent& wce) -> bool { 
+					if(wce.id == appInfo.mainWindow->get_id()) {
+						open = false;
+						return true;
+					}
+
+					return false;
+				}
 			);
 		}
 
 		app.deinit();
+		SDL_Quit();
 	}
 
 }

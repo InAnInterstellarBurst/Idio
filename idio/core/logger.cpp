@@ -16,9 +16,10 @@ namespace Idio
 	
 	void crash()
 	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical error", "Check logs :(", nullptr);
 		s_EngineLogger->critical("\n---------------------------------------\n| Engine requested a crash (see logs) |\n---------------------------------------");
 		Logger::s_Logfile.close(); // Ensure logs get written
-		std::terminate();
+		std::exit(-1);
 	}
 
 
@@ -71,7 +72,7 @@ namespace Idio
 		case LogLevel::Error:
 			return "\x1b[31m";
 		case LogLevel::Critical:
-			return "\x1b[37;41m";
+			return "\x1b[33;41m";
 		default:
 			return "\x1b[0m";
 		}

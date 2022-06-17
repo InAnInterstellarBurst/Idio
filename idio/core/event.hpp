@@ -23,6 +23,7 @@ namespace
 
 namespace Idio
 {
+	struct NoEvent {};
 	struct QuitEvent {};
 	struct WindowClosedEvent 
 	{
@@ -30,17 +31,17 @@ namespace Idio
 	};
 
 
-	using Event = std::variant<QuitEvent, WindowClosedEvent>;
+	using Event = std::variant<NoEvent, QuitEvent, WindowClosedEvent>;
 	
 	template<typename... Handlers>
 	auto evt_handler(const Event& e, Handlers&&... h)
 	{
-		return std::visit(overloaded{ std::forward<Handlers>(h)... }, e);
+		return std::visit(overloaded{ [](const NoEvent& no) -> bool { return true; }, std::forward<Handlers>(h)... }, e);
 	}
 
 	inline void post_quit_evt()
 	{
-		SDL_Event quit = { .type = SDL_QUIT };
+		SDL_Event quit{ .type = SDL_QUIT };
 		SDL_PushEvent(&quit);
 	}
 
@@ -49,13 +50,21 @@ namespace Idio
 	{
 		SDL_Event sdlEvt;
 		while(SDL_PollEvent(&sdlEvt)) {
-			Event translatedEvent;
+			Event translatedEvent = NoEvent{};
 			switch(sdlEvt.type) {
 			case SDL_QUIT:
 				translatedEvent = QuitEvent{};
 				break;
+			case SDL_WINDOWEVENT:
+				switch(sdlEvt.window.event) {
+				case SDL_WINDOWEVENT_CLOSE:
+					translatedEvent = WindowClosedEvent{ .id = sdlEvt.window.windowID };
+					break;
+				default:
+					break;
+				}
+				break;
 			default:
-				translatedEvent = WindowClosedEvent{ 3 };
 				break;
 			}
 

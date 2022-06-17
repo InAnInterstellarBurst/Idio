@@ -72,14 +72,14 @@ namespace Idio
 			auto fmsg = fmt::format(fmt, std::forward<Args>(args)...);
 			auto fopt = fmt::format(s_FileOptFmt, m_name, ll_to_str(ll), fmsg);
 			auto copt = fmt::format(s_ConsOptFmt, ll_to_colour(ll), m_name, 
-				ll_to_colour(LogLevel::Trace), fmsg);
+				fmsg, ll_to_colour(LogLevel::Trace));
 			log_base(ll, fopt, copt);
 		}
 
 		void log_base(LogLevel l, const std::string& fmsg, const std::string& cmsg);
 
 		static std::ofstream s_Logfile;
-		constexpr static const char* s_ConsOptFmt = "{}[{}]:{} {}\n";
+		constexpr static const char* s_ConsOptFmt = "{}[{}]: {}{}\n";
 		constexpr static const char* s_FileOptFmt = "[{}, {}]: {}\n";
 
 		static const char* ll_to_str(LogLevel l);
