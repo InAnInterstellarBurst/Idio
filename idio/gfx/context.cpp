@@ -10,6 +10,30 @@
 #include "context.hpp"
 #include <SDL_vulkan.h>
 
+#if ID_DEBUG
+	static VKAPI_ATTR VkBool32 debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* data,
+		void* ud)
+	{
+		auto typestr = vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageType));
+		switch(messageSeverity) {
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+			Idio::s_EngineLogger->error("{}: {}", typestr, data->pMessage);
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+			Idio::s_EngineLogger->warning("{}: {}", typestr, data->pMessage);
+			break;
+		default:
+			Idio::s_EngineLogger->trace("{}: {}", typestr, data->pMessage);
+			break;
+		}
+
+		return VK_TRUE;
+	}
+#endif
+
+
 namespace Idio
 {
 	Context::Context(const ApplicationInfo& ai)
@@ -30,12 +54,21 @@ namespace Idio
 			std::vector<const char*> exts(extCount + 1);
 			SDL_Vulkan_GetInstanceExtensions(*ai.mainWindow, &extCount, exts.data());
 
+			vk::InstanceCreateInfo ci{};
 #if ID_DEBUG
 			exts[extCount] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 			vlayers.push_back("VK_LAYER_KHRONOS_validation");
+
+			using enum vk::DebugUtilsMessageTypeFlagBitsEXT;
+			using enum vk::DebugUtilsMessageSeverityFlagBitsEXT;
+			vk::DebugUtilsMessengerCreateInfoEXT dci{};
+			dci.pfnUserCallback    = debug_callback;
+			dci.messageSeverity    = eError | eWarning | eInfo;
+			dci.messageType        = eGeneral | eValidation | ePerformance;
+
+			ci.pNext = &dci;
 #endif
 
-			vk::InstanceCreateInfo ci{};
 			ci.pApplicationInfo        = &appInfo;
 			ci.enabledExtensionCount   = static_cast<uint32_t>(exts.size());
 			ci.ppEnabledExtensionNames = exts.data();
@@ -43,6 +76,9 @@ namespace Idio
 			ci.ppEnabledLayerNames     = vlayers.data();
 			m_instance = check_vk(vk::createInstance(ci));
 			m_dispatchLoader = std::make_unique<vk::DispatchLoaderDynamic>(m_instance, vkGetInstanceProcAddr);
+#if ID_DEBUG
+			m_dbgmsgr = check_vk(m_instance.createDebugUtilsMessengerEXT(dci, nullptr, *m_dispatchLoader));
+#endif
 		}
 	}
 
