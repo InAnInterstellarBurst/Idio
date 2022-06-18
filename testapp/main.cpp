@@ -7,7 +7,6 @@
  */
 
 #include <idio/idio.hpp>
-#include <gfx/context.hpp>
 
 class App
 {

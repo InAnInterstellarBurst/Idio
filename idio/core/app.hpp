@@ -29,7 +29,7 @@ namespace Idio
 		std::string prefPath;
 		std::unique_ptr<Logger> gameLogger;
 		std::unique_ptr<Window> mainWindow;
-		std::unique_ptr<Context> context;
+		Context* context = nullptr;
 	};
 
 	template<class T>
@@ -42,12 +42,18 @@ namespace Idio
 		requires std::same_as<decltype(t.appInfo), const ApplicationInfo*>;
 	};
 
-	ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name);
+
+	// In a vain attempt to cut compile times I'll move context stuff out
+	namespace Internal
+	{
+		ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name);
+		void deinit_engine(ApplicationInfo& ai);
+	}
 
 	template<Application App>
 	void run(App& app, const WindowCreateInfo& wci, Version v, std::string name)
 	{
-		auto appInfo = init_engine(wci, std::move(v), std::move(name));
+		auto appInfo = Internal::init_engine(wci, std::move(v), std::move(name));
 		app.appInfo = &appInfo;
 		app.init();
 		bool open = true;
@@ -72,6 +78,7 @@ namespace Idio
 		}
 
 		app.deinit();
+		Internal::deinit_engine(appInfo);
 		SDL_Quit();
 	}
 

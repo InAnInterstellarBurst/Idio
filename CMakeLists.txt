@@ -29,12 +29,6 @@ else()
 	target_compile_definitions(project_settings INTERFACE ID_DESKTOP=1 ID_LINUX=1 ID_WIN32=0)
 endif()
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-	target_compile_definitions(project_settings INTERFACE ID_DEBUG=1)
-else()
-	target_compile_definitions(project_settings INTERFACE ID_DEBUG=0)
-endif()
-
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 add_subdirectory(dep/fmt)

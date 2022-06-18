@@ -9,7 +9,7 @@
 #include "idio.hpp"
 #include "gfx/context.hpp"
 
-namespace Idio
+namespace Idio::Internal
 {
 	ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name)
 	{
@@ -37,7 +37,12 @@ namespace Idio
 		}
 
 		appInfo.mainWindow = std::make_unique<Window>(wci);
-		appInfo.context = std::make_unique<Context>(appInfo);
+		appInfo.context = new Context(appInfo);
 		return appInfo;
+	}
+
+	void deinit_engine(ApplicationInfo& ai)
+	{
+		delete ai.context;
 	}
 }
