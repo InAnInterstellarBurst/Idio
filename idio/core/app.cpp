@@ -39,11 +39,13 @@ namespace Idio::Internal
 
 		appInfo.mainWindow = std::make_unique<Window>(wci);
 		appInfo.context = new Context(appInfo);
+		appInfo.mainWindow->create_swapchain(*appInfo.context);
 		return appInfo;
 	}
 
 	void deinit_engine(ApplicationInfo& ai)
 	{
+		ai.mainWindow.reset();
 		delete ai.context;
 	}
 }

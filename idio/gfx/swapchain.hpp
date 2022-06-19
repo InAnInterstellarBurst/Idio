@@ -19,6 +19,7 @@ namespace Idio
 
 		void recreate();
 	private:
+		const Context& m_context;
 		vk::SurfaceKHR m_surface;
 		vk::SwapchainKHR m_swapchain;
 

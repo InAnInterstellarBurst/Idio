@@ -60,6 +60,8 @@ namespace Idio
 	public:
 		Context(const ApplicationInfo& ai);
 		~Context();
+
+		vk::Instance get_instance() const { return m_instance; }
 	private:
 		vk::Instance m_instance;
 		std::unique_ptr<vk::DispatchLoaderDynamic> m_dispatchLoader;

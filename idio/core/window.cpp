@@ -37,6 +37,7 @@ namespace Idio
 
 	Window::~Window()
 	{
+		delete m_swapchain;
 		SDL_DestroyWindow(m_handle);
 	}
 	
@@ -67,6 +68,10 @@ namespace Idio
 
 	void Window::create_swapchain(const Context& c)
 	{
-		
+		if(m_swapchain == nullptr) {
+			m_swapchain = new Swapchain(c, *this);
+		} else {
+			m_swapchain->recreate();
+		}
 	}
 }
