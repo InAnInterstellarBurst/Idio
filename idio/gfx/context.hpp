@@ -12,6 +12,49 @@ namespace Idio
 {
 	struct ApplicationInfo;
 
+	struct PhysicalDevice
+	{
+		vk::PhysicalDevice handle = nullptr;
+		vk::PhysicalDeviceProperties props{};
+		vk::PhysicalDeviceFeatures supportedFeatures{};
+		uint32_t gfxQueueFamilyIdx = UINT32_MAX;
+
+		PhysicalDevice() = default;
+		PhysicalDevice(vk::PhysicalDevice pdev) : handle(pdev),
+			props(handle.getProperties()), supportedFeatures(handle.getFeatures())
+		{
+			auto qfprops = handle.getQueueFamilyProperties();
+			uint32_t i = 0;
+			for(const auto& qfp : qfprops) {
+				if(qfp.queueCount == 0) {
+					i++;
+					continue;
+				}
+
+				if(qfp.queueFlags & vk::QueueFlagBits::eGraphics) {
+					gfxQueueFamilyIdx = i;
+				}
+
+				i++;
+			}
+		}
+
+		bool operator<(const PhysicalDevice& other)
+		{
+			if(gfxQueueFamilyIdx == UINT32_MAX 
+				&& other.gfxQueueFamilyIdx != UINT32_MAX) {
+				
+				return true;
+			}
+
+			if(other.props.deviceType == vk::PhysicalDeviceType::eCpu) {
+				return false;
+			}
+
+			return (other.props.deviceType == vk::PhysicalDeviceType::eDiscreteGpu);
+		}
+	};
+
 	class Context
 	{
 	public:
@@ -20,6 +63,7 @@ namespace Idio
 	private:
 		vk::Instance m_instance;
 		std::unique_ptr<vk::DispatchLoaderDynamic> m_dispatchLoader;
+		PhysicalDevice m_pdev;
 
 #if ID_DEBUG
 		vk::DebugUtilsMessengerEXT m_dbgmsgr;

@@ -80,6 +80,21 @@ namespace Idio
 			m_dbgmsgr = check_vk(m_instance.createDebugUtilsMessengerEXT(dci, nullptr, *m_dispatchLoader));
 #endif
 		}
+
+		// Device
+		{
+			auto rawpdevs = m_instance.enumeratePhysicalDevices().value;
+			std::vector<PhysicalDevice> pdevs(rawpdevs.size());
+			std::copy(rawpdevs.begin(),	rawpdevs.end(), pdevs.begin());
+			auto devit = std::max_element(pdevs.begin(), pdevs.end());
+			if(devit == pdevs.end() || devit->gfxQueueFamilyIdx == UINT32_MAX) {
+				s_EngineLogger->critical("No suitable graphics devices found.");
+				crash();
+			}
+
+			m_pdev = *devit;
+			s_EngineLogger->info("Selected GPU {}", m_pdev.props.deviceName);
+		}
 	}
 
 	Context::~Context()
