@@ -6,7 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "idio.hpp"
+#include "pch.hpp"
+#include "app.hpp"
 #include "gfx/context.hpp"
 
 namespace Idio::Internal

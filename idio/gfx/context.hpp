@@ -64,6 +64,8 @@ namespace Idio
 		vk::Instance m_instance;
 		std::unique_ptr<vk::DispatchLoaderDynamic> m_dispatchLoader;
 		PhysicalDevice m_pdev;
+		vk::Device m_device;
+		vk::Queue m_gfxQueue;
 
 #if ID_DEBUG
 		vk::DebugUtilsMessengerEXT m_dbgmsgr;

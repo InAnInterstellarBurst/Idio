@@ -6,12 +6,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "pch.hpp"
-#include "app.hpp"
-
-int main(int argc, char** argv)
+namespace Idio
 {
-	std::span<char*> args(argv, static_cast<size_t>(argc));
-	Idio::main(args);
-	return EXIT_SUCCESS;
+	class Window;
+	class Context;
+	
+	class Swapchain
+	{
+	public:
+		Swapchain(const Context& c, const Window& w);
+		~Swapchain();
+
+		void recreate();
+	private:
+		vk::SurfaceKHR m_surface;
+		vk::SwapchainKHR m_swapchain;
+
+		void create();
+	};
 }

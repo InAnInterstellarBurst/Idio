@@ -6,7 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "idio.hpp"
+#include "pch.hpp"
+#include "window.hpp"
+#include "gfx/context.hpp"
+#include "gfx/swapchain.hpp"
 
 namespace Idio
 {
@@ -60,5 +63,10 @@ namespace Idio
 
 		SDL_SetWindowFullscreen(m_handle, f);
 		m_fullscrState = s;
+	}
+
+	void Window::create_swapchain(const Context& c)
+	{
+		
 	}
 }

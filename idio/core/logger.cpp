@@ -6,9 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "idio.hpp"
+#include "pch.hpp"
 #include <fstream>
 #include <exception>
+#include "core/app.hpp"
 
 namespace Idio
 {

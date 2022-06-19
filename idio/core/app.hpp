@@ -7,9 +7,13 @@
  */
 
 #pragma once
+#include "core/logger.hpp"
+#include "core/event.hpp"
+#include "core/window.hpp"
 
 namespace Idio
 {
+	extern void main(const std::span<char*>& args);
 	class Context;
 	
 	struct Version

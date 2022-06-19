@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
-
 #include <span>
 #include <array>
 #include <tuple>
@@ -25,7 +23,4 @@
 #include <SDL.h>
 #include <fmt/format.h>
 
-#include "core/app.hpp"
-#include "gfx/vkutl.hpp"
-#include "gfx/context.hpp"
-#include "gfx/swapchain.hpp"
+#include "core/logger.hpp"

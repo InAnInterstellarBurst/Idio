@@ -7,11 +7,11 @@
  */
 
 #include "pch.hpp"
-#include "app.hpp"
+#include "swapchain.hpp"
+#include "context.hpp"
+#include "vkutl.hpp"
 
-int main(int argc, char** argv)
+namespace Idio
 {
-	std::span<char*> args(argv, static_cast<size_t>(argc));
-	Idio::main(args);
-	return EXIT_SUCCESS;
+	
 }

@@ -14,6 +14,7 @@ namespace Idio
 	constexpr std::pair<int32_t, int32_t> s_WindowPosDefault { SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED };
 	
 	class Context;
+	class Swapchain;
 
 	enum FullscreenState
 	{
@@ -43,15 +44,18 @@ namespace Idio
 
 		void post_close_evt();
 		void set_fullscreen_state(FullscreenState s);
-		//void create_swapchain(const Context& c);
+		void create_swapchain(const Context& c);
 
 		uint32_t get_id() const { return m_id; }
+		Swapchain& get_swapchain() const { return *m_swapchain; }
+
 		bool operator==(const Window& o) const { return m_id == o.m_id; }
 		operator SDL_Window*() const { return m_handle; }
 	private:
 		uint32_t m_id = 0;
 		bool m_vsync = false;
 		SDL_Window* m_handle = nullptr;
+		Swapchain* m_swapchain = nullptr;
 		FullscreenState m_fullscrState = FullscreenState::Normal;
 	};
 }

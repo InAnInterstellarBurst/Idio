@@ -6,8 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "idio.hpp"
+#include "pch.hpp"
 #include "context.hpp"
+#include "vkutl.hpp"
+#include "core/app.hpp"
 #include <SDL_vulkan.h>
 
 #if ID_DEBUG
@@ -36,8 +38,12 @@
 
 namespace Idio
 {
+	constexpr Version s_EngineVersion { 0, 0, 0 };
+
 	Context::Context(const ApplicationInfo& ai)
 	{
+		std::vector<const char*> vlayers;
+
 		// Instance
 		{
 			vk::ApplicationInfo appInfo{};
@@ -46,8 +52,6 @@ namespace Idio
 			appInfo.pApplicationName     = ai.name.c_str();
 			appInfo.engineVersion        = s_EngineVersion.as_vk_ver();
 			appInfo.pEngineName          = "Idio";
-
-			std::vector<const char*> vlayers;
 
 			uint32_t extCount = 0;
 			SDL_Vulkan_GetInstanceExtensions(*ai.mainWindow, &extCount, nullptr);
@@ -94,11 +98,29 @@ namespace Idio
 
 			m_pdev = *devit;
 			s_EngineLogger->info("Selected GPU {}", m_pdev.props.deviceName);
+
+			constexpr float prior = 1.0f;
+			vk::DeviceQueueCreateInfo qci{};
+			qci.queueCount         = 1;
+			qci.pQueuePriorities   = &prior;
+			qci.queueFamilyIndex   = m_pdev.gfxQueueFamilyIdx;
+
+			const std::vector<const char*> exts{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+			vk::DeviceCreateInfo ci{};
+			ci.queueCreateInfoCount    = 1;
+			ci.pQueueCreateInfos       = &qci;
+			ci.enabledLayerCount       = static_cast<uint32_t>(vlayers.size());
+			ci.ppEnabledLayerNames     = vlayers.data();
+			ci.enabledExtensionCount   = static_cast<uint32_t>(exts.size());
+			ci.ppEnabledExtensionNames = exts.data();
+			m_device = check_vk(m_pdev.handle.createDevice(ci));
+			m_gfxQueue = m_device.getQueue(m_pdev.gfxQueueFamilyIdx, 0);
 		}
 	}
 
 	Context::~Context()
 	{
+		m_device.destroy();
 #if ID_DEBUG
 		m_instance.destroyDebugUtilsMessengerEXT(m_dbgmsgr, nullptr, *m_dispatchLoader);
 #endif
