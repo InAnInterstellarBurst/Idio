@@ -55,12 +55,12 @@ namespace Idio
 
 			uint32_t extCount = 0;
 			SDL_Vulkan_GetInstanceExtensions(*ai.mainWindow, &extCount, nullptr);
-			std::vector<const char*> exts(extCount + 1);
+			std::vector<const char*> exts(extCount);
 			SDL_Vulkan_GetInstanceExtensions(*ai.mainWindow, &extCount, exts.data());
 
 			vk::InstanceCreateInfo ci{};
 #if ID_DEBUG
-			exts[extCount] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+			exts.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 			vlayers.push_back("VK_LAYER_KHRONOS_validation");
 
 			using enum vk::DebugUtilsMessageTypeFlagBitsEXT;
@@ -78,10 +78,11 @@ namespace Idio
 			ci.ppEnabledExtensionNames = exts.data();
 			ci.enabledLayerCount       = static_cast<uint32_t>(vlayers.size());
 			ci.ppEnabledLayerNames     = vlayers.data();
-			m_instance = check_vk(vk::createInstance(ci));
+			m_instance = check_vk(vk::createInstance(ci), "Failed to create instance");
 			m_dispatchLoader = std::make_unique<vk::DispatchLoaderDynamic>(m_instance, vkGetInstanceProcAddr);
 #if ID_DEBUG
-			m_dbgmsgr = check_vk(m_instance.createDebugUtilsMessengerEXT(dci, nullptr, *m_dispatchLoader));
+			m_dbgmsgr = check_vk(m_instance.createDebugUtilsMessengerEXT(dci, nullptr, *m_dispatchLoader), 
+				"Failed to create debug msg");
 #endif
 		}
 
@@ -113,7 +114,7 @@ namespace Idio
 			ci.ppEnabledLayerNames     = vlayers.data();
 			ci.enabledExtensionCount   = static_cast<uint32_t>(exts.size());
 			ci.ppEnabledExtensionNames = exts.data();
-			m_device = check_vk(m_pdev.handle.createDevice(ci));
+			m_device = check_vk(m_pdev.handle.createDevice(ci), "Failed to create device");
 			m_gfxQueue = m_device.getQueue(m_pdev.gfxQueueFamilyIdx, 0);
 		}
 	}

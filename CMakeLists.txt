@@ -36,8 +36,10 @@ add_subdirectory(dep/SDL2)
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(idio)
+enable_ipo(idio)
 if(NOT ID_NOTEST)
 	add_subdirectory(testapp)
+	enable_ipo(testapp)
 endif()
 
 set_target_properties(fmt PROPERTIES FOLDER "Dependencies")

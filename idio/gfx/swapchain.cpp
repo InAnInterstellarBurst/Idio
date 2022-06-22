@@ -99,11 +99,9 @@ namespace Idio
 		ci.presentMode		= m_pmode;
 		ci.clipped			= true;
 		ci.oldSwapchain		= m_swapchain;
-		m_swapchain = check_vk(m_context.get_device().createSwapchainKHR(ci));
-		s_EngineLogger->info("Created swapchain");
+		m_swapchain = check_vk(m_context.get_device().createSwapchainKHR(ci), "Failed to create swapchain");
 		if(ci.oldSwapchain) {
 			m_context.get_device().destroySwapchainKHR(ci.oldSwapchain);
-			s_EngineLogger->info("\tJust recreated swapchain");
 		}
 
 		m_swapchainImages = m_context.get_device().getSwapchainImagesKHR(m_swapchain).value;
@@ -119,7 +117,8 @@ namespace Idio
 			ici.subresourceRange.levelCount		= 1;
 			ici.subresourceRange.baseArrayLayer = 0;
 			ici.subresourceRange.layerCount		= 1;
-			m_swapchainImageViews[i] = check_vk(m_context.get_device().createImageView(ici));
+			m_swapchainImageViews[i] = check_vk(m_context.get_device().createImageView(ici), 
+				"Failed to create swapchain image views");
 		}
 	}
 }
