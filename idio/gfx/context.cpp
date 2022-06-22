@@ -91,7 +91,7 @@ namespace Idio
 			std::vector<PhysicalDevice> pdevs(rawpdevs.size());
 			std::copy(rawpdevs.begin(),	rawpdevs.end(), pdevs.begin());
 			auto devit = std::max_element(pdevs.begin(), pdevs.end());
-			if(devit == pdevs.end() || devit->gfxQueueFamilyIdx == UINT32_MAX) {
+			if(devit == pdevs.end() || devit->gfxQueueFamilyIdx == std::numeric_limits<uint32_t>::max()) {
 				s_EngineLogger->critical("No suitable graphics devices found.");
 				crash();
 			}

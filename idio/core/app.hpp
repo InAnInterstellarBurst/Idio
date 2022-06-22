@@ -61,6 +61,7 @@ namespace Idio
 		app.appInfo = &appInfo;
 		app.init();
 		bool open = true;
+		bool minimised = false;
 		while(open) {
 			app.tick();
 
@@ -69,10 +70,26 @@ namespace Idio
 					open = false; 
 					return true; 
 				},
-				
+
+				[&](const WindowMinimiseEvent& me) -> bool {
+					if(me.id == appInfo.mainWindow->get_id()) {
+						minimised = me.minimised;
+						return true;
+					}
+
+					return false;
+				},
 				[&](const WindowClosedEvent& wce) -> bool { 
 					if(wce.id == appInfo.mainWindow->get_id()) {
 						open = false;
+						return true;
+					}
+
+					return false;
+				},
+				[&](const WindowResizeEvent& wre) -> bool { 
+					if(wre.id == appInfo.mainWindow->get_id()) {
+						appInfo.mainWindow->create_swapchain(*appInfo.context);
 						return true;
 					}
 

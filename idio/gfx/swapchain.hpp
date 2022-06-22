@@ -18,10 +18,22 @@ namespace Idio
 		~Swapchain();
 
 		void recreate();
+
+		vk::Extent2D get_extent() const { return m_extent; }
+		vk::Format get_format() const { return m_format.format; }
+		auto get_image_views() const { return m_swapchainImageViews; }
 	private:
+		const Window& m_window;
 		const Context& m_context;
+
 		vk::SurfaceKHR m_surface;
-		vk::SwapchainKHR m_swapchain;
+		vk::SwapchainKHR m_swapchain = VK_NULL_HANDLE;
+		vk::Extent2D m_extent;
+		vk::PresentModeKHR m_pmode;
+		vk::SurfaceFormatKHR m_format;
+
+		std::vector<vk::Image> m_swapchainImages;
+		std::vector<vk::ImageView> m_swapchainImageViews;
 
 		void create();
 	};

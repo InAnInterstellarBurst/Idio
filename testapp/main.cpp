@@ -27,7 +27,9 @@ public:
 	{
 		Idio::evt_handler(e, 
 			[](const Idio::QuitEvent& qe) -> bool { return true; },
-			[](const Idio::WindowClosedEvent& ce) -> bool { return true; }
+			[](const Idio::WindowClosedEvent& ce) -> bool { return true; },
+			[](const Idio::WindowResizeEvent& re) -> bool { return true; },
+			[](const Idio::WindowMinimiseEvent& me) -> bool { return true; }
 		);
 	}
 
@@ -37,5 +39,5 @@ public:
 void Idio::main(const std::span<char*>& args)
 {
 	App app;
-	Idio::run(app, {}, Idio::Version{0, 0, 1}, std::string("Hello"));
+	Idio::run(app, Idio::WindowCreateInfo{ .resizeable = true }, Idio::Version{0, 0, 1}, std::string("Hello"));
 }

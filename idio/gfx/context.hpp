@@ -17,7 +17,7 @@ namespace Idio
 		vk::PhysicalDevice handle = nullptr;
 		vk::PhysicalDeviceProperties props{};
 		vk::PhysicalDeviceFeatures supportedFeatures{};
-		uint32_t gfxQueueFamilyIdx = UINT32_MAX;
+		uint32_t gfxQueueFamilyIdx = std::numeric_limits<uint32_t>::max();
 
 		PhysicalDevice() = default;
 		PhysicalDevice(vk::PhysicalDevice pdev) : handle(pdev),
@@ -41,8 +41,9 @@ namespace Idio
 
 		bool operator<(const PhysicalDevice& other)
 		{
-			if(gfxQueueFamilyIdx == UINT32_MAX 
-				&& other.gfxQueueFamilyIdx != UINT32_MAX) {
+			constexpr auto uintmax = std::numeric_limits<uint32_t>::max();
+			if(gfxQueueFamilyIdx == uintmax 
+				&& other.gfxQueueFamilyIdx != uintmax) {
 				
 				return true;
 			}
@@ -62,6 +63,8 @@ namespace Idio
 		~Context();
 
 		vk::Instance get_instance() const { return m_instance; }
+		vk::Device get_device() const { return m_device; }
+		PhysicalDevice get_physdev() const { return m_pdev; }
 	private:
 		vk::Instance m_instance;
 		std::unique_ptr<vk::DispatchLoaderDynamic> m_dispatchLoader;

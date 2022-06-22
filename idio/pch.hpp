@@ -11,6 +11,7 @@
 #include <tuple>
 #include <string>
 #include <memory>
+#include <limits>
 #include <vector>
 #include <memory>
 #include <utility>
