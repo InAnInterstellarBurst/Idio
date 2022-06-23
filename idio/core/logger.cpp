@@ -47,7 +47,7 @@ namespace Idio
 		}
 	}
 
-	const char* Logger::ll_to_str(LogLevel l)
+	constexpr const char* Logger::ll_to_str(LogLevel l)
 	{
 		switch(l) {
 		case LogLevel::Info:
@@ -63,7 +63,7 @@ namespace Idio
 		}
 	}
 
-	const char* Logger::ll_to_colour(LogLevel l)
+	constexpr const char* Logger::ll_to_colour(LogLevel l)
 	{
 		switch(l) {
 		case LogLevel::Info:

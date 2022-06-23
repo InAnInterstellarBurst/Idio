@@ -82,8 +82,8 @@ namespace Idio
 		constexpr static const char* s_ConsOptFmt = "{}[{}]: {}{}\n";
 		constexpr static const char* s_FileOptFmt = "[{}, {}]: {}\n";
 
-		static const char* ll_to_str(LogLevel l);
-		static const char* ll_to_colour(LogLevel l);
+		constexpr static const char* ll_to_str(LogLevel l);
+		constexpr static const char* ll_to_colour(LogLevel l);
 	};
 
 	extern std::unique_ptr<Logger> s_EngineLogger;
