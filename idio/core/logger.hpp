@@ -82,8 +82,37 @@ namespace Idio
 		constexpr static const char* s_ConsOptFmt = "{}[{}]: {}{}\n";
 		constexpr static const char* s_FileOptFmt = "[{}, {}]: {}\n";
 
-		constexpr static const char* ll_to_str(LogLevel l);
-		constexpr static const char* ll_to_colour(LogLevel l);
+		constexpr const char* ll_to_str(LogLevel l)
+		{
+			switch(l) {
+			case LogLevel::Info:
+				return "Info";
+			case LogLevel::Warning:
+				return "Warning";
+			case LogLevel::Error:
+				return "Error";
+			case LogLevel::Critical:
+				return "Critical";
+			default:
+				return "Trace";
+			}
+		}
+
+		constexpr const char* ll_to_colour(LogLevel l)
+		{
+			switch(l) {
+			case LogLevel::Info:
+				return "\x1b[32m";
+			case LogLevel::Warning:
+				return "\x1b[33m";
+			case LogLevel::Error:
+				return "\x1b[31m";
+			case LogLevel::Critical:
+				return "\x1b[33;41m";
+			default:
+				return "\x1b[0m";
+			}
+		}
 	};
 
 	extern std::unique_ptr<Logger> s_EngineLogger;

@@ -10,7 +10,8 @@
 
 namespace Idio
 {
-	struct ApplicationInfo;
+	class Window;
+	struct Version;
 
 	struct PhysicalDevice
 	{
@@ -59,7 +60,7 @@ namespace Idio
 	class Context
 	{
 	public:
-		Context(const ApplicationInfo& ai);
+		Context(const Version& v, const std::string& appname, Window& w);
 		~Context();
 
 		vk::Instance get_instance() const { return m_instance; }

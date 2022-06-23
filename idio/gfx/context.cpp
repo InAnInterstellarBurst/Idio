@@ -40,7 +40,7 @@ namespace Idio
 {
 	constexpr Version s_EngineVersion { 0, 0, 0 };
 
-	Context::Context(const ApplicationInfo& ai)
+	Context::Context(const Version& v, const std::string& appname, Window& w)
 	{
 		std::vector<const char*> vlayers;
 
@@ -48,15 +48,15 @@ namespace Idio
 		{
 			vk::ApplicationInfo appInfo{};
 			appInfo.apiVersion           = VK_API_VERSION_1_3;
-			appInfo.applicationVersion   = ai.version.as_vk_ver();
-			appInfo.pApplicationName     = ai.name.c_str();
+			appInfo.applicationVersion   = v.as_vk_ver();
+			appInfo.pApplicationName     = appname.c_str();
 			appInfo.engineVersion        = s_EngineVersion.as_vk_ver();
 			appInfo.pEngineName          = "Idio";
 
 			uint32_t extCount = 0;
-			SDL_Vulkan_GetInstanceExtensions(*ai.mainWindow, &extCount, nullptr);
+			SDL_Vulkan_GetInstanceExtensions(w, &extCount, nullptr);
 			std::vector<const char*> exts(extCount);
-			SDL_Vulkan_GetInstanceExtensions(*ai.mainWindow, &extCount, exts.data());
+			SDL_Vulkan_GetInstanceExtensions(w, &extCount, exts.data());
 
 			vk::InstanceCreateInfo ci{};
 #if ID_DEBUG

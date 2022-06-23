@@ -37,15 +37,15 @@ namespace Idio::Internal
 			crash();
 		}
 
-		appInfo.mainWindow = std::make_unique<Window>(wci);
-		appInfo.context = new Context(appInfo);
+		appInfo.mainWindow = new Window(wci);
+		appInfo.context = new Context(appInfo.version, appInfo.name, *appInfo.mainWindow);
 		appInfo.mainWindow->create_swapchain(*appInfo.context);
 		return appInfo;
 	}
 
-	void deinit_engine(ApplicationInfo& ai)
+	void deinit_engine(ApplicationInfo& app)
 	{
-		ai.mainWindow.reset();
-		delete ai.context;
+		delete app.mainWindow;
+		delete app.context;
 	}
 }

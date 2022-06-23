@@ -32,8 +32,8 @@ namespace Idio
 
 		std::string prefPath;
 		std::unique_ptr<Logger> gameLogger;
-		std::unique_ptr<Window> mainWindow;
-		Context* context = nullptr;
+		Window* mainWindow;
+		Context* context;
 	};
 
 	template<class T>
@@ -51,7 +51,7 @@ namespace Idio
 	namespace Internal
 	{
 		ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name);
-		void deinit_engine(ApplicationInfo& ai);
+		void deinit_engine(ApplicationInfo& app);
 	}
 
 	template<Application App>
