@@ -43,7 +43,7 @@ namespace Idio::Internal
 		return appInfo;
 	}
 
-	void deinit_engine(ApplicationInfo& app)
+	void deinit_engine(const ApplicationInfo& app)
 	{
 		delete app.mainWindow;
 		delete app.context;

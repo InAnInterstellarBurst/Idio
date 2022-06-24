@@ -1,0 +1,5 @@
+{
+	"licenser.useSingleLineStyle": false,
+	"licenser.license": "MPLv2",
+	"cmake.configureArgs": [ "-DCMAKE_BUILD_TYPE=Debug -DUSE_ALTERNATE_LINKER=mold" ]
+}

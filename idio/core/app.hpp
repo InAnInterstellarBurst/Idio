@@ -51,7 +51,7 @@ namespace Idio
 	namespace Internal
 	{
 		ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name);
-		void deinit_engine(ApplicationInfo& app);
+		void deinit_engine(const ApplicationInfo& app);
 	}
 
 	template<Application App>

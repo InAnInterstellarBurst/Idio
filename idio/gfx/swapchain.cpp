@@ -50,20 +50,27 @@ namespace Idio
 		const vk::PhysicalDevice pdev = m_context.get_physdev().handle;
 
 		auto surfformats = pdev.getSurfaceFormatsKHR(m_surface).value;
-		m_format = surfformats[0];
-		for(auto fmt : surfformats) {
-			if(fmt.format ==  vk::Format::eB8G8R8Srgb && fmt.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
-				m_format = fmt;
-				break;
+		auto surfit = std::find_if(surfformats.begin(), surfformats.end(), 
+			[](vk::SurfaceFormatKHR fmt) -> bool {
+				return (fmt.format ==  vk::Format::eB8G8R8Srgb 
+					&& fmt.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear);
 			}
+		);
+
+		if(surfit != surfformats.end()) {
+			m_format = *surfit;
+		} else {
+			m_format = surfformats[0];
 		}
 
 		auto presentmodes = pdev.getSurfacePresentModesKHR(m_surface).value;
 		m_pmode = vk::PresentModeKHR::eFifo;
-		for(const auto& pmode : presentmodes) {
-			if(!m_window.is_vsync() && pmode == vk::PresentModeKHR::eMailbox) {
-				m_pmode = pmode;
-				break;
+		if(m_window.is_vsync()) {
+			auto pif = std::find(presentmodes.begin(), presentmodes.end(), vk::PresentModeKHR::eMailbox);
+			if(pif != presentmodes.end()) {
+				m_pmode = *pif;
+			} else {
+				s_EngineLogger->warning("VSync was requested but not supported, weird?");
 			}
 		}
 

@@ -39,7 +39,7 @@ namespace Idio
 	class Window
 	{
 	public:
-		Window(const WindowCreateInfo& wci);
+		explicit Window(const WindowCreateInfo& wci);
 		~Window();
 
 		void post_close_evt();

@@ -40,7 +40,7 @@ namespace Idio
 			}
 		}
 
-		bool operator<(const PhysicalDevice& other)
+		constexpr bool operator<(const PhysicalDevice& other)
 		{
 			constexpr auto uintmax = std::numeric_limits<uint32_t>::max();
 			if(gfxQueueFamilyIdx == uintmax 
