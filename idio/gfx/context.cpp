@@ -147,6 +147,11 @@ namespace Idio
 		m_context.get_device().destroyCommandPool(m_handle);
 	}
 
+	void CommandPool::reset()
+	{
+		m_context.get_device().resetCommandPool(m_handle);
+	}
+
 	std::vector<vk::CommandBuffer> CommandPool::get_buffers(uint32_t count, bool secondary)
 	{
 		vk::CommandBufferAllocateInfo ai{};

@@ -84,6 +84,7 @@ namespace Idio
 		CommandPool(const Context& c, uint32_t capacity, bool transient = false);
 		~CommandPool();
 
+		void reset();
 		std::vector<vk::CommandBuffer> get_buffers(uint32_t count, bool secondary = false);
 	private:
 		const Context& m_context;
