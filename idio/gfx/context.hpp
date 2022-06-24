@@ -77,4 +77,16 @@ namespace Idio
 		vk::DebugUtilsMessengerEXT m_dbgmsgr;
 #endif
 	};
+
+	class CommandPool
+	{
+	public:
+		CommandPool(const Context& c, uint32_t capacity, bool transient = false);
+		~CommandPool();
+
+		std::vector<vk::CommandBuffer> get_buffers(uint32_t count, bool secondary = false);
+	private:
+		const Context& m_context;
+		vk::CommandPool m_handle;
+	};
 }

@@ -127,4 +127,32 @@ namespace Idio
 #endif
 		m_instance.destroy();
 	}
+
+
+	CommandPool::CommandPool(const Context& c, uint32_t capacity, bool transient) 
+		: m_context(c)
+	{
+		vk::CommandPoolCreateInfo ci{};
+		ci.queueFamilyIndex = c.get_physdev().gfxQueueFamilyIdx;
+		ci.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+		if(transient) {
+			ci.flags |= vk::CommandPoolCreateFlagBits::eTransient;
+		}
+
+		m_handle = check_vk(m_context.get_device().createCommandPool(ci), "Failed to create gfx pool");
+	}
+	
+	CommandPool::~CommandPool()
+	{
+		m_context.get_device().destroyCommandPool(m_handle);
+	}
+
+	std::vector<vk::CommandBuffer> CommandPool::get_buffers(uint32_t count, bool secondary)
+	{
+		vk::CommandBufferAllocateInfo ai{};
+		ai.commandPool = m_handle;
+		ai.commandBufferCount = count;
+		ai.level = secondary ? vk::CommandBufferLevel::eSecondary : vk::CommandBufferLevel::ePrimary;
+		return check_vk(m_context.get_device().allocateCommandBuffers(ai), "Failed to alloc command buffers");
+	}
 }
