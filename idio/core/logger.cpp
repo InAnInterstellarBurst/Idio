@@ -27,9 +27,14 @@ namespace Idio
 	std::ofstream Logger::s_Logfile;
 
 	Logger::Logger(std::string name, const ApplicationInfo& appinfo) :
-		m_name(std::move(name)), m_fileFilter(LogLevel::Trace),
-		m_consFilter(LogLevel::Info)
+		m_name(std::move(name)), m_fileFilter(LogLevel::Trace)
 	{
+		if constexpr(ID_DEBUG) {
+			m_consFilter = LogLevel::Info;
+		} else {
+			m_consFilter = LogLevel::Warning;
+		}
+
 		if(!s_Logfile.is_open()) {
 			s_Logfile.open(appinfo.prefPath + "latest.log", std::ios::trunc | std::ios::out);
 		}

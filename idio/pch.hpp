@@ -15,10 +15,12 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <optional>
 #include <iostream>
 #include <string_view>
 
 #define VULKAN_HPP_NO_EXCEPTIONS
+#define VULKAN_HPP_ASSERT_ON_RESULT
 #include <vulkan/vulkan.hpp>
 
 #include <SDL.h>

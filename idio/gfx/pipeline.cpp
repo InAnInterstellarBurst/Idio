@@ -14,7 +14,7 @@
 
 namespace Idio
 {
-	std::vector<uint32_t> load_shader_from_disk(const std::string& pth)
+	std::optional<std::vector<uint32_t>> load_shader_from_disk(const std::string& pth)
 	{
 		std::ifstream file(pth, std::ios::ate | std::ios::binary);
 		if(!file) {

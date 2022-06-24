@@ -55,50 +55,54 @@ namespace Idio
 	}
 
 	template<Application App>
-	void run(App& app, const WindowCreateInfo& wci, Version v, std::string name)
+	void run(App&& theirapp, const WindowCreateInfo& wci, Version v, std::string name)
 	{
 		auto appInfo = Internal::init_engine(wci, std::move(v), std::move(name));
-		app.appInfo = &appInfo;
-		app.init();
-		bool open = true;
-		bool minimised = false;
-		while(open) {
-			app.tick();
 
-			poll_evts(app,
-				[&](const QuitEvent& qe) -> bool { 
-					open = false; 
-					return true; 
-				},
+		{
+			App app = std::forward<App>(theirapp); // Pro gamer move
+			app.appInfo = &appInfo;
+			app.init();
+			bool open = true;
+			bool minimised = false;
+			while(open) {
+				app.tick();
+				poll_evts(app,
+					[&](const QuitEvent& qe) -> bool { 
+						open = false; 
+						return true; 
+					},
 
-				[&](const WindowMinimiseEvent& me) -> bool {
-					if(me.id == appInfo.mainWindow->get_id()) {
-						minimised = me.minimised;
-						return true;
+					[&](const WindowMinimiseEvent& me) -> bool {
+						if(me.id == appInfo.mainWindow->get_id()) {
+							minimised = me.minimised;
+							return true;
+						}
+
+						return false;
+					},
+					[&](const WindowClosedEvent& wce) -> bool { 
+						if(wce.id == appInfo.mainWindow->get_id()) {
+							open = false;
+							return true;
+						}
+
+						return false;
+					},
+					[&](const WindowResizeEvent& wre) -> bool { 
+						if(wre.id == appInfo.mainWindow->get_id()) {
+							appInfo.mainWindow->create_swapchain(*appInfo.context);
+							return true;
+						}
+
+						return false;
 					}
+				);
+			}
 
-					return false;
-				},
-				[&](const WindowClosedEvent& wce) -> bool { 
-					if(wce.id == appInfo.mainWindow->get_id()) {
-						open = false;
-						return true;
-					}
-
-					return false;
-				},
-				[&](const WindowResizeEvent& wre) -> bool { 
-					if(wre.id == appInfo.mainWindow->get_id()) {
-						appInfo.mainWindow->create_swapchain(*appInfo.context);
-						return true;
-					}
-
-					return false;
-				}
-			);
+			app.deinit();
 		}
-
-		app.deinit();
+		
 		Internal::deinit_engine(appInfo);
 		SDL_Quit();
 	}

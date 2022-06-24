@@ -12,7 +12,7 @@ namespace Idio
 {
 	class Swapchain;
 
-	std::vector<uint32_t> load_shader_from_disk(const std::string& pth);
+	std::optional<std::vector<uint32_t>> load_shader_from_disk(const std::string& pth);
 	
 	struct PipelineCreateInfo
 	{

@@ -16,10 +16,17 @@ public:
 
 	void init() 
 	{
+		auto vscode = Idio::load_shader_from_disk("./shaders/basic.vert.spv");
+		auto fscode = Idio::load_shader_from_disk("./shaders/basic.frag.spv");
+		if(!vscode || !fscode) {
+			appInfo->gameLogger->critical("Oh dear one of the shaders are invalid");
+			Idio::crash();
+		}
+
 		Idio::PipelineCreateInfo pci{};
-		pci.vertexShaderCode = Idio::load_shader_from_disk("./shaders/basic.vert.spv");
-		pci.vertexShaderCode = Idio::load_shader_from_disk("./shaders/basic.frag.spv");
-		
+		pci.vertexShaderCode = *vscode;
+		pci.fragmentShaderCode = *fscode;
+
 		pipeline = std::make_unique<Idio::Pipeline>(appInfo->context->get_device(), 
 			appInfo->mainWindow->get_swapchain(), pci);
 	}
@@ -45,6 +52,5 @@ public:
 
 void Idio::main(const std::span<char*>& args)
 {
-	App app;
-	Idio::run(app, Idio::WindowCreateInfo{ .resizeable = true }, Idio::Version{0, 0, 1}, std::string("Hello"));
+	Idio::run(App{}, Idio::WindowCreateInfo{ .resizeable = true }, Idio::Version{0, 0, 1}, std::string("Hello"));
 }
