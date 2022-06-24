@@ -48,6 +48,7 @@ namespace Idio
 
 		uint32_t get_id() const { return m_id; }
 		bool is_vsync() const { return m_vsync; }
+		Swapchain& get_swapchain() const { return *m_swapchain; }
 
 		bool operator==(const Window& o) const { return m_id == o.m_id; }
 		operator SDL_Window*() const { return m_handle; }

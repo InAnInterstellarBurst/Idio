@@ -22,7 +22,7 @@ namespace Idio
 
 		PhysicalDevice() = default;
 		PhysicalDevice(vk::PhysicalDevice pdev) : handle(pdev),
-			props(handle.getProperties()), supportedFeatures(handle.getFeatures())
+			props(handle.getProperties()), supportedFeatures(handle.getFeatures()) // Implicit on purpose
 		{
 			auto qfprops = handle.getQueueFamilyProperties();
 			uint32_t i = 0;

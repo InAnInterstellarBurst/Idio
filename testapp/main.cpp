@@ -11,8 +11,17 @@
 class App
 {
 public:
+	const Idio::ApplicationInfo* appInfo;
+	std::unique_ptr<Idio::Pipeline> pipeline;
+
 	void init() 
 	{
+		Idio::PipelineCreateInfo pci{};
+		pci.vertexShaderCode = Idio::load_shader_from_disk("./shaders/basic.vert.spv");
+		pci.vertexShaderCode = Idio::load_shader_from_disk("./shaders/basic.frag.spv");
+		
+		pipeline = std::make_unique<Idio::Pipeline>(appInfo->context->get_device(), 
+			appInfo->mainWindow->get_swapchain(), pci);
 	}
 	
 	void tick()
@@ -32,8 +41,6 @@ public:
 			[](const Idio::WindowMinimiseEvent& me) -> bool { return true; }
 		);
 	}
-
-	const Idio::ApplicationInfo* appInfo = nullptr;
 };
 
 void Idio::main(const std::span<char*>& args)

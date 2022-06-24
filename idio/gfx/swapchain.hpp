@@ -27,7 +27,7 @@ namespace Idio
 		const Context& m_context;
 
 		vk::SurfaceKHR m_surface;
-		vk::SwapchainKHR m_swapchain = VK_NULL_HANDLE;
+		vk::SwapchainKHR m_swapchain = nullptr;
 		vk::Extent2D m_extent;
 		vk::PresentModeKHR m_pmode;
 		vk::SurfaceFormatKHR m_format;

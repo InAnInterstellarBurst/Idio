@@ -29,3 +29,4 @@
 #include "gfx/vkutl.hpp"
 #include "gfx/context.hpp"
 #include "gfx/swapchain.hpp"
+#include "gfx/pipeline.hpp"

@@ -15,7 +15,6 @@ else()
 endif()
 
 function(add_shaders target shaderdirs)
-	message("${shaderdirs}")
 	foreach(GLSL ${shaderdirs})
 		get_filename_component(FILE_NAME ${GLSL} NAME)
 		set(SPIRV "${CMAKE_CURRENT_BINARY_DIR}/shaders/${FILE_NAME}.spv")
