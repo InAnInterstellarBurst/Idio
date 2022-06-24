@@ -13,6 +13,8 @@ class App
 public:
 	const Idio::ApplicationInfo* appInfo;
 	std::unique_ptr<Idio::Pipeline> pipeline;
+	std::unique_ptr<Idio::CommandPool> cmdpool;
+	vk::CommandBuffer cmdbuf;
 
 	void init() 
 	{
@@ -29,14 +31,30 @@ public:
 
 		pipeline = std::make_unique<Idio::Pipeline>(appInfo->context->get_device(), 
 			appInfo->mainWindow->get_swapchain(), pci);
+
+		cmdpool = std::make_unique<Idio::CommandPool>(*appInfo->context);
+		cmdbuf = cmdpool->get_buffers(1)[0];
 	}
 	
 	void tick()
 	{
+		cmdpool->reset();
+		appInfo->context->begin_cmd(cmdbuf);
+		pipeline->bind_cmd(cmdbuf);
+		appInfo->context->draw_cmd(cmdbuf, 3);
+		pipeline->unbind_cmd(cmdbuf);
+		appInfo->context->end_cmd(cmdbuf);
+		appInfo->context->submit_gfx_queue(appInfo->mainWindow->get_swapchain(), { cmdbuf });
+	}
+
+	void recreate_pipelines()
+	{
+		pipeline->reset();
 	}
 
 	void deinit() 
 	{
+		Idio::check_vk(appInfo->context->get_device().waitIdle(), "Got impatient?");
 	}
 
 	void event_proc(const Idio::Event& e) 

@@ -11,6 +11,8 @@
 namespace Idio
 {
 	class Window;
+	class Pipeline;
+	class Swapchain;
 	struct Version;
 
 	struct PhysicalDevice
@@ -63,15 +65,24 @@ namespace Idio
 		Context(const Version& v, const std::string& appname, Window& w);
 		~Context();
 
+		void begin_cmd(vk::CommandBuffer buf);
+		void end_cmd(vk::CommandBuffer buf);
+		void draw_cmd(vk::CommandBuffer buf, uint32_t vertCount);
+		
+		void submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs);
+
 		vk::Instance get_instance() const { return m_instance; }
 		vk::Device get_device() const { return m_device; }
 		PhysicalDevice get_physdev() const { return m_pdev; }
+		vk::Queue get_gfx_queue() const { return m_gfxQueue; }
+		vk::Semaphore get_gfx_queue_finish_sem() const { return m_gfxFinishSem; }
 	private:
 		vk::Instance m_instance;
 		std::unique_ptr<vk::DispatchLoaderDynamic> m_dispatchLoader;
 		PhysicalDevice m_pdev;
 		vk::Device m_device;
 		vk::Queue m_gfxQueue;
+		vk::Semaphore m_gfxFinishSem;
 
 #if ID_DEBUG
 		vk::DebugUtilsMessengerEXT m_dbgmsgr;
@@ -81,13 +92,13 @@ namespace Idio
 	class CommandPool
 	{
 	public:
-		CommandPool(const Context& c, uint32_t capacity, bool transient = false);
+		CommandPool(const Context& c, bool transient = false);
 		~CommandPool();
 
 		void reset();
 		std::vector<vk::CommandBuffer> get_buffers(uint32_t count, bool secondary = false);
 	private:
-		const Context& m_context;
+		vk::Device m_dev;
 		vk::CommandPool m_handle;
 	};
 }

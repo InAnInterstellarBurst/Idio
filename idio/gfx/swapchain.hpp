@@ -18,10 +18,16 @@ namespace Idio
 		~Swapchain();
 
 		void recreate();
+		bool next();
+		void present();
 
+		auto& get_image_avail_sem() const { return m_imageAvail; }
+		auto& get_frame_fence() const { return m_prevFrameFence; }
+		
 		vk::Extent2D get_extent() const { return m_extent; }
 		vk::Format get_format() const { return m_format.format; }
 		auto get_image_views() const { return m_swapchainImageViews; }
+		uint32_t get_current_image_index() const { return m_imageIndex; }
 	private:
 		const Window& m_window;
 		const Context& m_context;
@@ -31,7 +37,10 @@ namespace Idio
 		vk::Extent2D m_extent;
 		vk::PresentModeKHR m_pmode;
 		vk::SurfaceFormatKHR m_format;
+		vk::Semaphore m_imageAvail;
+		vk::Fence m_prevFrameFence;
 
+		uint32_t m_imageIndex;
 		std::vector<vk::Image> m_swapchainImages;
 		std::vector<vk::ImageView> m_swapchainImageViews;
 

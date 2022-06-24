@@ -10,6 +10,7 @@
 #include "context.hpp"
 #include "vkutl.hpp"
 #include "core/app.hpp"
+#include "swapchain.hpp"
 #include <SDL_vulkan.h>
 
 #if ID_DEBUG
@@ -117,10 +118,14 @@ namespace Idio
 			m_device = check_vk(m_pdev.handle.createDevice(ci), "Failed to create device");
 			m_gfxQueue = m_device.getQueue(m_pdev.gfxQueueFamilyIdx, 0);
 		}
+
+		vk::SemaphoreCreateInfo sci{};
+		m_gfxFinishSem = check_vk(m_device.createSemaphore(sci), "Failed to create sem");
 	}
 
 	Context::~Context()
 	{
+		m_device.destroySemaphore(m_gfxFinishSem);
 		m_device.destroy();
 #if ID_DEBUG
 		m_instance.destroyDebugUtilsMessengerEXT(m_dbgmsgr, nullptr, *m_dispatchLoader);
@@ -128,9 +133,40 @@ namespace Idio
 		m_instance.destroy();
 	}
 
+	void Context::begin_cmd(vk::CommandBuffer buf)
+	{
+		vk::CommandBufferBeginInfo bi{};
+		check_vk(buf.begin(bi), "Failed to begin cmd buf");
+	}
 
-	CommandPool::CommandPool(const Context& c, uint32_t capacity, bool transient) 
-		: m_context(c)
+	void Context::end_cmd(vk::CommandBuffer buf)
+	{
+		check_vk(buf.end(), "Failed to record cmd buf");
+	}
+
+	void Context::draw_cmd(vk::CommandBuffer buf, uint32_t vertCount)
+	{
+		buf.draw(vertCount, 1, 0, 0);
+	}
+
+	void Context::submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs)
+	{
+		vk::Semaphore sigs[] = { m_gfxFinishSem };
+		vk::Semaphore imgav[] = { sc.get_image_avail_sem() };
+		vk::PipelineStageFlags waitstage[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+		vk::SubmitInfo si{};
+		si.waitSemaphoreCount   = 1;
+		si.pWaitSemaphores      = imgav;
+		si.pWaitDstStageMask    = waitstage;
+		si.commandBufferCount   = static_cast<uint32_t>(cbufs.size());
+		si.pCommandBuffers      = cbufs.data();
+		si.signalSemaphoreCount = 1;
+		si.pSignalSemaphores    = sigs;
+		check_vk(m_gfxQueue.submit(si, sc.get_frame_fence()), "Failed to submit gfx");
+	}
+
+
+	CommandPool::CommandPool(const Context& c, bool transient) : m_dev(c.get_device())
 	{
 		vk::CommandPoolCreateInfo ci{};
 		ci.queueFamilyIndex = c.get_physdev().gfxQueueFamilyIdx;
@@ -139,17 +175,17 @@ namespace Idio
 			ci.flags |= vk::CommandPoolCreateFlagBits::eTransient;
 		}
 
-		m_handle = check_vk(m_context.get_device().createCommandPool(ci), "Failed to create gfx pool");
+		m_handle = check_vk(m_dev.createCommandPool(ci), "Failed to create gfx pool");
 	}
 	
 	CommandPool::~CommandPool()
 	{
-		m_context.get_device().destroyCommandPool(m_handle);
+		m_dev.destroyCommandPool(m_handle);
 	}
 
 	void CommandPool::reset()
 	{
-		m_context.get_device().resetCommandPool(m_handle);
+		m_dev.resetCommandPool(m_handle);
 	}
 
 	std::vector<vk::CommandBuffer> CommandPool::get_buffers(uint32_t count, bool secondary)
@@ -158,6 +194,6 @@ namespace Idio
 		ai.commandPool = m_handle;
 		ai.commandBufferCount = count;
 		ai.level = secondary ? vk::CommandBufferLevel::eSecondary : vk::CommandBufferLevel::ePrimary;
-		return check_vk(m_context.get_device().allocateCommandBuffers(ai), "Failed to alloc command buffers");
+		return check_vk(m_dev.allocateCommandBuffers(ai), "Failed to alloc command buffers");
 	}
 }

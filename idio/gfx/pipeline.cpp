@@ -34,7 +34,7 @@ namespace Idio
 	Pipeline::Pipeline(vk::Device dev, const Swapchain& sc, 
 		const PipelineCreateInfo& pci) : m_dev(dev), m_swapchain(sc)
 	{
-		vk::ShaderModuleCreateInfo sci {};
+		vk::ShaderModuleCreateInfo sci{};
 		sci.codeSize = pci.vertexShaderCode.size();
 		sci.pCode = pci.vertexShaderCode.data();
 		vk::ShaderModule vshader = check_vk(m_dev.createShaderModule(sci), "Failed to create vert shader");
@@ -43,28 +43,28 @@ namespace Idio
 		sci.pCode = pci.fragmentShaderCode.data();
 		vk::ShaderModule fshader = check_vk(m_dev.createShaderModule(sci), "Failed to create frag shder");
 
-		vk::PipelineShaderStageCreateInfo vsci {};
+		vk::PipelineShaderStageCreateInfo vsci{};
 		vsci.pName  = "main";
 		vsci.module = vshader;
 		vsci.stage  = vk::ShaderStageFlagBits::eVertex;
 
-		vk::PipelineShaderStageCreateInfo fsci {};
+		vk::PipelineShaderStageCreateInfo fsci{};
 		fsci.pName  = "main";
 		fsci.module = fshader;
 		fsci.stage  = vk::ShaderStageFlagBits::eFragment;
 		vk::PipelineShaderStageCreateInfo stages[2] = { vsci, fsci };
 
 		//TODO: Vertex buffers might be ideal yes
-		vk::PipelineVertexInputStateCreateInfo vci {};
+		vk::PipelineVertexInputStateCreateInfo vci{};
 
-		vk::PipelineInputAssemblyStateCreateInfo iaci {};
+		vk::PipelineInputAssemblyStateCreateInfo iaci{};
 		iaci.topology = pci.topology;
 		iaci.primitiveRestartEnable = pci.primitiveRestart;
 
-		vk::Rect2D scis {};
+		vk::Rect2D scis{};
 		scis.extent = sc.get_extent();
 
-		vk::Viewport vp {};
+		vk::Viewport vp{};
 		vp.x        = 0;
 		vp.y        = 0;
 		vp.minDepth = 0.0f;
@@ -72,13 +72,13 @@ namespace Idio
 		vp.width    = static_cast<float>(sc.get_extent().width);
 		vp.height   = static_cast<float>(sc.get_extent().height);
 
-		vk::PipelineViewportStateCreateInfo vpci {};
+		vk::PipelineViewportStateCreateInfo vpci{};
 		vpci.scissorCount  = 1;
 		vpci.pScissors     = &scis;
 		vpci.viewportCount = 1;
 		vpci.pViewports    = &vp;
 
-		vk::PipelineRasterizationStateCreateInfo rci {};
+		vk::PipelineRasterizationStateCreateInfo rci{};
 		rci.depthClampEnable        = false;
 		rci.rasterizerDiscardEnable = false;
 		rci.polygonMode             = pci.polyMode;
@@ -88,14 +88,14 @@ namespace Idio
 		rci.depthBiasEnable         = false;
 
 		//TODO: Might be helpful... :)
-		vk::PipelineMultisampleStateCreateInfo msci {};
+		vk::PipelineMultisampleStateCreateInfo msci{};
 		msci.sampleShadingEnable = false;
 
 		//TODO: This is also cool and ideal :)
-		vk::PipelineDepthStencilStateCreateInfo dci {};
+		vk::PipelineDepthStencilStateCreateInfo dci{};
 
 		using enum vk::ColorComponentFlagBits;
-		vk::PipelineColorBlendAttachmentState blendInfo {};
+		vk::PipelineColorBlendAttachmentState blendInfo{};
 		blendInfo.colorWriteMask      = eR | eG | eB | eA;
 		blendInfo.blendEnable         = pci.blendAlpha;
 		blendInfo.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
@@ -105,22 +105,22 @@ namespace Idio
 		blendInfo.dstAlphaBlendFactor = vk::BlendFactor::eZero;
 		blendInfo.alphaBlendOp        = vk::BlendOp::eAdd;
 
-		vk::PipelineColorBlendStateCreateInfo cbci {};
+		vk::PipelineColorBlendStateCreateInfo cbci{};
 		cbci.logicOpEnable   = false;
 		cbci.attachmentCount = 1;
 		cbci.pAttachments    = &blendInfo;
 
 		vk::DynamicState ds = vk::DynamicState::eViewport;
-		vk::PipelineDynamicStateCreateInfo dsci {};
+		vk::PipelineDynamicStateCreateInfo dsci{};
 		dsci.dynamicStateCount = 1;
 		dsci.pDynamicStates    = &ds;
 
-		vk::PipelineLayoutCreateInfo plci {};
+		vk::PipelineLayoutCreateInfo plci{};
 		m_layout = check_vk(m_dev.createPipelineLayout(plci), "Failed to create pipeline layout");
 		create_renderpass();
 
 		//TODO: Pipeline cache
-		vk::GraphicsPipelineCreateInfo ci {};
+		vk::GraphicsPipelineCreateInfo ci{};
 		ci.subpass             = 0;
 		ci.layout              = m_layout;
 		ci.renderPass          = m_rpass;
@@ -137,7 +137,7 @@ namespace Idio
 
 		m_dev.destroyShaderModule(vshader);
 		m_dev.destroyShaderModule(fshader);
-		m_framebufs.reserve(m_swapchain.get_image_views().size());
+		create_framebuffers();
 	}
 	
 	Pipeline::~Pipeline()
@@ -149,6 +149,35 @@ namespace Idio
 		m_dev.destroyPipeline(m_handle);
 		m_dev.destroyPipelineLayout(m_layout);
 		m_dev.destroyRenderPass(m_rpass);
+	}
+
+	void Pipeline::bind_cmd(vk::CommandBuffer buf)
+	{
+		vk::ClearValue cv{{std::array<float, 4>{0.0f, 0.5f, 0.0f, 1.0f}}};
+
+		vk::RenderPassBeginInfo rbi{};
+		rbi.renderPass        = m_rpass;
+		rbi.clearValueCount   = 1;
+		rbi.pClearValues      = &cv;
+		rbi.renderArea.offset = vk::Offset2D{0, 0};
+		rbi.renderArea.extent = vk::Extent2D{m_swapchain.get_extent()};
+		rbi.framebuffer       = m_framebufs[m_swapchain.get_current_image_index()];
+		buf.beginRenderPass(rbi, vk::SubpassContents::eInline);
+		buf.bindPipeline(vk::PipelineBindPoint::eGraphics, m_handle);
+		
+		vk::Viewport vp{};
+		vp.x        = 0;
+		vp.y        = 0;
+		vp.minDepth = 0.0f;
+		vp.maxDepth = 1.0f;
+		vp.width    = static_cast<float>(m_swapchain.get_extent().width);
+		vp.height   = static_cast<float>(m_swapchain.get_extent().height);
+		buf.setViewport(0, { vp });
+	}
+
+	void Pipeline::unbind_cmd(vk::CommandBuffer buf)
+	{
+		buf.endRenderPass();
 	}
 	
 	void Pipeline::reset()
@@ -178,6 +207,14 @@ namespace Idio
 		attachDesc.initialLayout  = vk::ImageLayout::eUndefined;
 		attachDesc.finalLayout    = vk::ImageLayout::ePresentSrcKHR;
 
+		vk::SubpassDependency sdep{};
+		sdep.srcSubpass       = VK_SUBPASS_EXTERNAL;
+		sdep.dstSubpass       = 0;
+		sdep.srcAccessMask    = vk::AccessFlagBits::eNone;
+		sdep.dstAccessMask    = vk::AccessFlagBits::eColorAttachmentWrite;
+		sdep.srcStageMask     = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+		sdep.dstStageMask     = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+
 		vk::SubpassDescription subpass{};
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments    = &colref;
@@ -188,12 +225,15 @@ namespace Idio
 		rci.pAttachments    = &attachDesc;
 		rci.subpassCount    = 1;
 		rci.pSubpasses      = &subpass;
+		rci.dependencyCount = 1;
+		rci.pDependencies   = &sdep;
 		m_rpass = check_vk(m_dev.createRenderPass(rci), "Failed to create renderpass");
 	}
 
 	void Pipeline::create_framebuffers()
 	{
 		auto imviews = m_swapchain.get_image_views();
+		m_framebufs.resize(imviews.size());
 		for(size_t i = 0; i < imviews.size(); i++) {
 			vk::ImageView attachments[] = { imviews[i] };
 
@@ -204,8 +244,7 @@ namespace Idio
 			ci.pAttachments    = attachments;
 			ci.width           = m_swapchain.get_extent().width;
 			ci.height          = m_swapchain.get_extent().height;
-			m_framebufs.push_back(check_vk(m_dev.createFramebuffer(ci),
-				"Cannot create pipeline framebuffer"));
+			m_framebufs[i] = check_vk(m_dev.createFramebuffer(ci), "Cannot create pipeline framebuffer");
 		}
 	}
 }

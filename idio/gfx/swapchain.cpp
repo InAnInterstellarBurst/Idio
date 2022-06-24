@@ -25,11 +25,21 @@ namespace Idio
 		}
 
 		m_surface = rsurf;
+
+		vk::SemaphoreCreateInfo sci{};
+		m_imageAvail = check_vk(c.get_device().createSemaphore(sci), "Semaphore create failed");
+
+		vk::FenceCreateInfo fci{};
+		fci.flags = vk::FenceCreateFlagBits::eSignaled;
+		m_prevFrameFence = check_vk(c.get_device().createFence(fci), "Failed to create swapchain fence");
+
 		create();
 	}
 
 	Swapchain::~Swapchain()
 	{
+		m_context.get_device().destroySemaphore(m_imageAvail);
+		m_context.get_device().destroyFence(m_prevFrameFence);
 		for(auto iv : m_swapchainImageViews) {
 			m_context.get_device().destroyImageView(iv);
 		}
@@ -39,10 +49,53 @@ namespace Idio
 
 	void Swapchain::recreate()
 	{
+		check_vk(m_context.get_device().waitIdle(), "FUCK");
 		for(auto iv : m_swapchainImageViews) {
 			m_context.get_device().destroyImageView(iv);
 		}
 		create();
+	}
+
+	bool Swapchain::next()
+	{
+		constexpr uint64_t intmax = std::numeric_limits<uint64_t>::max();
+		check_vk(m_context.get_device().waitForFences({ m_prevFrameFence }, true, intmax),
+			"Got impatient");
+
+		auto imgres = m_context.get_device().acquireNextImageKHR(m_swapchain, intmax, m_imageAvail);
+		if(imgres.result == vk::Result::eSuboptimalKHR 
+			|| imgres.result == vk::Result::eErrorOutOfDateKHR) {
+			
+			recreate();
+			return false;
+		} else if(imgres.result != vk::Result::eSuccess) {
+			s_EngineLogger->critical("Failed to render frame");
+			crash();
+		}
+
+		m_context.get_device().resetFences({ m_prevFrameFence });
+		m_imageIndex = imgres.value;
+		return true;
+	}
+
+	void Swapchain::present()
+	{
+		vk::Semaphore sems[] = { m_context.get_gfx_queue_finish_sem() };
+		vk::SwapchainKHR scs[] = { m_swapchain };
+
+		vk::PresentInfoKHR pi{};
+		pi.waitSemaphoreCount   = 1;
+		pi.pWaitSemaphores      = sems;
+		pi.swapchainCount       = 1;
+		pi.pSwapchains          = scs;
+		pi.pImageIndices        = &m_imageIndex;
+		vk::Result pres = m_context.get_gfx_queue().presentKHR(pi); // Let's just hope the resize propogates :)
+		if(pres != vk::Result::eSuccess 
+			&& pres != vk::Result::eSuboptimalKHR && pres != vk::Result::eErrorOutOfDateKHR) {
+			
+			s_EngineLogger->critical("Failed to present");
+			crash();
+		}
 	}
 
 	void Swapchain::create()

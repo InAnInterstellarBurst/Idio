@@ -74,4 +74,14 @@ namespace Idio
 			m_swapchain->recreate();
 		}
 	}
+
+	bool Window::clear()
+	{
+		return m_swapchain->next();
+	}
+
+	void Window::present()
+	{
+		m_swapchain->present();
+	}
 }

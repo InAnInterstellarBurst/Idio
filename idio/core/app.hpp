@@ -43,6 +43,7 @@ namespace Idio
 		t.tick();
 		t.deinit();
 		t.event_proc(e);
+		t.recreate_pipelines();
 		requires std::same_as<decltype(t.appInfo), const ApplicationInfo*>;
 	};
 
@@ -66,7 +67,16 @@ namespace Idio
 			bool open = true;
 			bool minimised = false;
 			while(open) {
-				app.tick();
+				if(!minimised) {
+					if(!appInfo.mainWindow->clear()) {
+						app.recreate_pipelines();
+						continue; // fucking christ
+					}
+
+					app.tick();
+					appInfo.mainWindow->present();
+				}
+
 				poll_evts(app,
 					[&](const QuitEvent& qe) -> bool { 
 						open = false; 
@@ -92,6 +102,7 @@ namespace Idio
 					[&](const WindowResizeEvent& wre) -> bool { 
 						if(wre.id == appInfo.mainWindow->get_id()) {
 							appInfo.mainWindow->create_swapchain(*appInfo.context);
+							app.recreate_pipelines();
 							return true;
 						}
 

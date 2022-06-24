@@ -20,4 +20,12 @@ namespace Idio
 
 		return rv.value;
 	}
+
+	inline void check_vk(vk::Result r, std::string_view msg)
+	{
+		if(r != vk::Result::eSuccess) {
+			s_EngineLogger->critical("[Vulkan]: {}, {}", vk::to_string(r), msg);
+			crash();
+		}
+	}
 }

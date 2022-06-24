@@ -46,6 +46,9 @@ namespace Idio
 		void set_fullscreen_state(FullscreenState s);
 		void create_swapchain(const Context& c);
 
+		bool clear();
+		void present();
+
 		uint32_t get_id() const { return m_id; }
 		bool is_vsync() const { return m_vsync; }
 		Swapchain& get_swapchain() const { return *m_swapchain; }
