@@ -110,10 +110,14 @@ namespace Idio
 		cbci.attachmentCount = 1;
 		cbci.pAttachments    = &blendInfo;
 
-		vk::DynamicState ds = vk::DynamicState::eViewport;
+		vk::DynamicState ds[] = { 
+			vk::DynamicState::eScissor, 
+			vk::DynamicState::eViewport
+		};
+
 		vk::PipelineDynamicStateCreateInfo dsci{};
-		dsci.dynamicStateCount = 1;
-		dsci.pDynamicStates    = &ds;
+		dsci.dynamicStateCount = 2;
+		dsci.pDynamicStates    = ds;
 
 		vk::PipelineLayoutCreateInfo plci{};
 		m_layout = check_vk(m_dev.createPipelineLayout(plci), "Failed to create pipeline layout");
@@ -174,6 +178,10 @@ namespace Idio
 		vp.width    = static_cast<float>(m_swapchain.get_extent().width);
 		vp.height   = static_cast<float>(m_swapchain.get_extent().height);
 		buf.setViewport(0, { vp });
+
+		vk::Rect2D scis{};
+		scis.extent = m_swapchain.get_extent();
+		buf.setScissor(0, { scis});
 	}
 
 	void Pipeline::unbind_cmd(vk::CommandBuffer buf)

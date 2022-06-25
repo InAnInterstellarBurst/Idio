@@ -23,23 +23,23 @@ namespace Idio
 			s_EngineLogger->critical("Failed to create surface: {}", SDL_GetError());
 			crash();
 		}
-
 		m_surface = rsurf;
 
+		m_imageAvailSems.resize(s_MaxFramesProcessing);
 		vk::SemaphoreCreateInfo sci{};
-		m_imageAvail = check_vk(c.get_device().createSemaphore(sci), "Semaphore create failed");
-
-		vk::FenceCreateInfo fci{};
-		fci.flags = vk::FenceCreateFlagBits::eSignaled;
-		m_prevFrameFence = check_vk(c.get_device().createFence(fci), "Failed to create swapchain fence");
+		for(uint32_t i = 0; i < s_MaxFramesProcessing; i++) {
+			m_imageAvailSems[i] = check_vk(c.get_device().createSemaphore(sci), "Failed to create image available semaphore");
+		}
 
 		create();
 	}
 
 	Swapchain::~Swapchain()
 	{
-		m_context.get_device().destroySemaphore(m_imageAvail);
-		m_context.get_device().destroyFence(m_prevFrameFence);
+		for(uint32_t i = 0; i < s_MaxFramesProcessing; i++) {
+			m_context.get_device().destroySemaphore(m_imageAvailSems[i]);
+		}
+
 		for(auto iv : m_swapchainImageViews) {
 			m_context.get_device().destroyImageView(iv);
 		}
@@ -59,10 +59,11 @@ namespace Idio
 	bool Swapchain::next()
 	{
 		constexpr uint64_t intmax = std::numeric_limits<uint64_t>::max();
-		check_vk(m_context.get_device().waitForFences({ m_prevFrameFence }, true, intmax),
+		vk::Fence currentfence = m_context.get_gfx_queue_fences()[m_currentFrame];
+		check_vk(m_context.get_device().waitForFences({ currentfence }, true, intmax),
 			"Got impatient");
 
-		auto imgres = m_context.get_device().acquireNextImageKHR(m_swapchain, intmax, m_imageAvail);
+		auto imgres = m_context.get_device().acquireNextImageKHR(m_swapchain, intmax, m_imageAvailSems[m_currentFrame]);
 		if(imgres.result == vk::Result::eSuboptimalKHR 
 			|| imgres.result == vk::Result::eErrorOutOfDateKHR) {
 			
@@ -73,29 +74,32 @@ namespace Idio
 			crash();
 		}
 
-		m_context.get_device().resetFences({ m_prevFrameFence });
+		m_context.get_device().resetFences({ currentfence });
 		m_imageIndex = imgres.value;
 		return true;
 	}
 
 	void Swapchain::present()
 	{
-		vk::Semaphore sems[] = { m_context.get_gfx_queue_finish_sem() };
-		vk::SwapchainKHR scs[] = { m_swapchain };
+		vk::Semaphore sems[] = { 
+			m_context.get_gfx_queue_finish_sems()[m_currentFrame] 
+		};
 
 		vk::PresentInfoKHR pi{};
 		pi.waitSemaphoreCount   = 1;
 		pi.pWaitSemaphores      = sems;
 		pi.swapchainCount       = 1;
-		pi.pSwapchains          = scs;
+		pi.pSwapchains          = &m_swapchain;
 		pi.pImageIndices        = &m_imageIndex;
-		vk::Result pres = m_context.get_gfx_queue().presentKHR(pi); // Let's just hope the resize propogates :)
+		vk::Result pres = m_context.get_gfx_queue().presentKHR(pi); // Let's just hope the resize signal propogates 🙃
 		if(pres != vk::Result::eSuccess 
 			&& pres != vk::Result::eSuboptimalKHR && pres != vk::Result::eErrorOutOfDateKHR) {
 			
 			s_EngineLogger->critical("Failed to present");
 			crash();
 		}
+
+		m_currentFrame = (m_currentFrame + 1) % s_MaxFramesProcessing;
 	}
 
 	void Swapchain::create()

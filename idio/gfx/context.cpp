@@ -120,12 +120,21 @@ namespace Idio
 		}
 
 		vk::SemaphoreCreateInfo sci{};
-		m_gfxFinishSem = check_vk(m_device.createSemaphore(sci), "Failed to create sem");
+		vk::FenceCreateInfo fci{};
+		fci.flags = vk::FenceCreateFlagBits::eSignaled;
+		for(uint32_t i = 0; i < s_MaxFramesProcessing; i++) {		
+			m_gfxQueueFences[i] = check_vk(m_device.createFence(fci), "Failed to create render finished fence");
+			m_gfxFinishSems[i] = check_vk(m_device.createSemaphore(sci), "Failed to create gfx finish sem");
+		}
 	}
 
 	Context::~Context()
 	{
-		m_device.destroySemaphore(m_gfxFinishSem);
+		for(uint32_t i = 0; i < s_MaxFramesProcessing; i++) {
+			m_device.destroyFence(m_gfxQueueFences[i]);
+			m_device.destroySemaphore(m_gfxFinishSems[i]);
+		}
+		
 		m_device.destroy();
 #if ID_DEBUG
 		m_instance.destroyDebugUtilsMessengerEXT(m_dbgmsgr, nullptr, *m_dispatchLoader);
@@ -151,9 +160,11 @@ namespace Idio
 
 	void Context::submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs)
 	{
-		vk::Semaphore sigs[] = { m_gfxFinishSem };
-		vk::Semaphore imgav[] = { sc.get_image_avail_sem() };
+		auto fi = sc.get_current_frame_index();
+		vk::Semaphore sigs[] = { m_gfxFinishSems[fi] };
+		vk::Semaphore imgav[] = { sc.get_current_image_avail_sem() };
 		vk::PipelineStageFlags waitstage[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+	
 		vk::SubmitInfo si{};
 		si.waitSemaphoreCount   = 1;
 		si.pWaitSemaphores      = imgav;
@@ -162,7 +173,7 @@ namespace Idio
 		si.pCommandBuffers      = cbufs.data();
 		si.signalSemaphoreCount = 1;
 		si.pSignalSemaphores    = sigs;
-		check_vk(m_gfxQueue.submit(si, sc.get_frame_fence()), "Failed to submit gfx");
+		check_vk(m_gfxQueue.submit(si, m_gfxQueueFences[fi]), "Failed to submit gfx");
 	}
 
 

@@ -14,7 +14,7 @@ public:
 	const Idio::ApplicationInfo* appInfo;
 	std::unique_ptr<Idio::Pipeline> pipeline;
 	std::unique_ptr<Idio::CommandPool> cmdpool;
-	vk::CommandBuffer cmdbuf;
+	std::vector<vk::CommandBuffer> cmdbufs;
 
 	void init() 
 	{
@@ -33,12 +33,13 @@ public:
 			appInfo->mainWindow->get_swapchain(), pci);
 
 		cmdpool = std::make_unique<Idio::CommandPool>(*appInfo->context);
-		cmdbuf = cmdpool->get_buffers(1)[0];
+		cmdbufs = cmdpool->get_buffers(Idio::s_MaxFramesProcessing);
 	}
 	
 	void tick()
 	{
-		cmdpool->reset();
+		auto cmdbuf = cmdbufs[appInfo->mainWindow->get_swapchain().get_current_frame_index()];
+		cmdbuf.reset();
 		appInfo->context->begin_cmd(cmdbuf);
 		pipeline->bind_cmd(cmdbuf);
 		appInfo->context->draw_cmd(cmdbuf, 3);
