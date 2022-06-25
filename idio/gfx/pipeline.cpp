@@ -137,6 +137,7 @@ namespace Idio
 
 		m_dev.destroyShaderModule(vshader);
 		m_dev.destroyShaderModule(fshader);
+		m_framebufs.resize(m_swapchain.get_image_views().size());
 		create_framebuffers();
 	}
 	
@@ -233,7 +234,6 @@ namespace Idio
 	void Pipeline::create_framebuffers()
 	{
 		auto imviews = m_swapchain.get_image_views();
-		m_framebufs.resize(imviews.size());
 		for(size_t i = 0; i < imviews.size(); i++) {
 			vk::ImageView attachments[] = { imviews[i] };
 
