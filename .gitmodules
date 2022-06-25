@@ -4,3 +4,6 @@
 [submodule "dep/SDL2"]
 	path = dep/SDL2
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "dep/vma"]
+	path = dep/vma
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
