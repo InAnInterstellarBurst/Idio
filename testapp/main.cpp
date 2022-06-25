@@ -46,6 +46,8 @@ public:
 		pipeline->unbind_cmd(cmdbuf);
 		appInfo->context->end_cmd(cmdbuf);
 		appInfo->context->submit_gfx_queue(appInfo->mainWindow->get_swapchain(), { cmdbuf });
+
+		appInfo->mainWindow->present();
 	}
 
 	void recreate_pipelines()

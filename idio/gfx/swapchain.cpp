@@ -79,29 +79,6 @@ namespace Idio
 		return true;
 	}
 
-	void Swapchain::present()
-	{
-		vk::Semaphore sems[] = { 
-			m_context.get_gfx_queue_finish_sems()[m_currentFrame] 
-		};
-
-		vk::PresentInfoKHR pi{};
-		pi.waitSemaphoreCount   = 1;
-		pi.pWaitSemaphores      = sems;
-		pi.swapchainCount       = 1;
-		pi.pSwapchains          = &m_swapchain;
-		pi.pImageIndices        = &m_imageIndex;
-		vk::Result pres = m_context.get_gfx_queue().presentKHR(pi); // Let's just hope the resize signal propogates 🙃
-		if(pres != vk::Result::eSuccess 
-			&& pres != vk::Result::eSuboptimalKHR && pres != vk::Result::eErrorOutOfDateKHR) {
-			
-			s_EngineLogger->critical("Failed to present");
-			crash();
-		}
-
-		m_currentFrame = (m_currentFrame + 1) % s_MaxFramesProcessing;
-	}
-
 	void Swapchain::create()
 	{
 		const vk::PhysicalDevice pdev = m_context.get_physdev().handle;
@@ -183,6 +160,38 @@ namespace Idio
 			ici.subresourceRange.layerCount		= 1;
 			m_swapchainImageViews[i] = check_vk(m_context.get_device().createImageView(ici), 
 				"Failed to create swapchain image views");
+		}
+	}
+
+	void Swapchain::present(std::vector<Swapchain*>& scs)
+	{
+		const Context& c = scs[0]->m_context; // God forgive me
+		std::vector<vk::SwapchainKHR> swaps(scs.size());
+		std::vector<uint32_t> imgidxs(scs.size());
+		std::vector<vk::Semaphore> waitSems(scs.size());
+		for(size_t i = 0; i < scs.size(); i++) {
+			const auto sc = scs[i];
+			swaps[i] = sc->m_swapchain;
+			imgidxs[i] = sc->get_current_image_index();
+			waitSems[i] = c.get_gfx_queue_finish_sems()[sc->get_current_frame_index()];
+		}
+
+		vk::PresentInfoKHR pi{};
+		pi.waitSemaphoreCount   = static_cast<uint32_t>(waitSems.size());
+		pi.pWaitSemaphores      = waitSems.data();
+		pi.swapchainCount       = static_cast<uint32_t>(swaps.size());
+		pi.pSwapchains          = swaps.data();
+		pi.pImageIndices        = imgidxs.data();
+		vk::Result pres = c.get_gfx_queue().presentKHR(pi); // Let's just hope the resize signal propogates 🙃
+		if(pres != vk::Result::eSuccess 
+			&& pres != vk::Result::eSuboptimalKHR && pres != vk::Result::eErrorOutOfDateKHR) {
+			
+			s_EngineLogger->critical("Failed to present");
+			crash();
+		}
+
+		for(auto sc : scs) {
+			sc->m_currentFrame = (sc->m_currentFrame + 1) % s_MaxFramesProcessing;
 		}
 	}
 }

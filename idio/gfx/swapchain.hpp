@@ -19,15 +19,16 @@ namespace Idio
 
 		void recreate();
 		bool next();
-		void present();
 
-		auto get_current_image_avail_sem() const { return m_imageAvailSems[m_currentFrame]; }
 		
 		vk::Extent2D get_extent() const { return m_extent; }
 		vk::Format get_format() const { return m_format.format; }
 		auto get_image_views() const { return m_swapchainImageViews; }
 		uint32_t get_current_image_index() const { return m_imageIndex; }
 		uint32_t get_current_frame_index() const { return m_currentFrame; }
+		auto get_current_image_avail_sem() const { return m_imageAvailSems[m_currentFrame]; }
+
+		static void present(std::vector<Swapchain*>& scs);
 	private:
 		const Window& m_window;
 		const Context& m_context;

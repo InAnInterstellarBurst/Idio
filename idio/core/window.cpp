@@ -82,6 +82,7 @@ namespace Idio
 
 	void Window::present()
 	{
-		m_swapchain->present();
+		static std::vector<Swapchain*> ssv{ m_swapchain };
+		Swapchain::present(ssv);
 	}
 }

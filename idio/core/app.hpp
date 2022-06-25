@@ -70,11 +70,10 @@ namespace Idio
 				if(!minimised) {
 					if(!appInfo.mainWindow->clear()) {
 						app.recreate_pipelines();
-						continue; // fucking christ
+						continue;
 					}
 
 					app.tick();
-					appInfo.mainWindow->present();
 				}
 
 				poll_evts(app,
