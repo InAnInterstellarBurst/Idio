@@ -11,7 +11,7 @@
 class App
 {
 public:
-	std::shared_ptr<const Idio::ApplicationInfo> appInfo;
+	const Idio::ApplicationInfo* appInfo;
 	std::unique_ptr<Idio::Pipeline> pipeline;
 	std::unique_ptr<Idio::CommandPool> cmdpool;
 	std::vector<vk::CommandBuffer> cmdbufs;

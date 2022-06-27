@@ -18,19 +18,17 @@ namespace Idio::Internal
 		char* prefpath = SDL_GetPrefPath("idio", name.c_str());
 		if(prefpath == nullptr) {
 			std::cout << "[Init error]: " << SDL_GetError() << std::endl;
-			return nullptr;
+			return {};
 		}
 
 		auto appInfo = std::make_shared<ApplicationInfo>();
-		appInfo->version = v;
-		appInfo->name = std::move(name);
-		appInfo->prefPath = prefpath;
-		appInfo->gameLogger = std::make_unique<Logger>(appInfo->name, *appInfo);
-		appInfo->context = nullptr;
-		appInfo->mainWindow = nullptr;
+		appInfo->version = v,
+		appInfo->name = std::move(name),
+		appInfo->prefPath = prefpath,
 
 		SDL_free(prefpath);
-		
+
+		appInfo->gameLogger = std::make_unique<Logger>(appInfo->name, *appInfo);
 		s_EngineLogger = std::make_unique<Logger>("Idio", *appInfo);
 		if(SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0) {
 			s_EngineLogger->critical("Failed to init SDL: {}", SDL_GetError());

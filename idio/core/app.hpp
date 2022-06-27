@@ -34,12 +34,6 @@ namespace Idio
 		std::unique_ptr<Logger> gameLogger;
 		std::unique_ptr<Context> context;
 		std::unique_ptr<Window> mainWindow;
-
-		~ApplicationInfo()
-		{
-			std::cout << "hi\n";
-			SDL_Quit();
-		}
 	};
 
 	template<class T>
@@ -50,7 +44,7 @@ namespace Idio
 		t.event_proc(e);
 		t.recreate_pipelines();
 		requires std::is_default_constructible_v<T>;
-		requires std::same_as<decltype(t.appInfo), std::shared_ptr<const ApplicationInfo>>;
+		requires std::same_as<decltype(t.appInfo), const ApplicationInfo*>;
 	};
 
 
@@ -64,13 +58,9 @@ namespace Idio
 	template<Application App>
 	void run(const WindowCreateInfo& wci, Version v, std::string name)
 	{
-		App app;
 		auto appInfo = Internal::init_engine(wci, v, std::move(name));
-		if(appInfo == nullptr) {
-			return;
-		}
-
-		app.appInfo = appInfo;
+		App app;
+		app.appInfo = appInfo.get();
 		app.init();
 
 		bool open = true;

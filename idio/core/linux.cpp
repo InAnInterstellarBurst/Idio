@@ -13,5 +13,6 @@ int main(int argc, char** argv)
 {
 	std::span<char*> args(argv, static_cast<size_t>(argc));
 	Idio::main(args);
+	SDL_Quit();
 	return EXIT_SUCCESS;
 }
