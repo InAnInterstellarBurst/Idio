@@ -12,21 +12,22 @@
 
 namespace Idio::Internal
 {
-	ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name)
+	std::shared_ptr<ApplicationInfo> init_engine(const WindowCreateInfo& wci, Version v,
+		std::string name)
 	{
 		char* prefpath = SDL_GetPrefPath("idio", name.c_str());
 		if(prefpath == nullptr) {
 			std::cout << "[Init error]: " << SDL_GetError() << std::endl;
-			return {};
+			return nullptr;
 		}
 
 		ApplicationInfo appInfo{
+			.version = v,
 			.name = std::move(name),
-			.version = std::move(v),
 			.prefPath = prefpath,
 			.gameLogger = std::make_unique<Logger>(appInfo.name, appInfo),
-			.mainWindow = nullptr,
-			.context = nullptr
+			.context = nullptr,
+			.mainWindow = nullptr
 		};
 
 		SDL_free(prefpath);
@@ -37,15 +38,10 @@ namespace Idio::Internal
 			crash();
 		}
 
-		appInfo.mainWindow = new Window(wci);
-		appInfo.context = new Context(appInfo.version, appInfo.name, *appInfo.mainWindow);
+		appInfo.mainWindow = std::make_unique<Window>(wci);
+		appInfo.context = std::make_unique<Context>(appInfo.version, appInfo.name,
+			*appInfo.mainWindow);
 		appInfo.mainWindow->create_swapchain(*appInfo.context);
-		return appInfo;
-	}
-
-	void deinit_engine(const ApplicationInfo& app)
-	{
-		delete app.mainWindow;
-		delete app.context;
+		return std::make_shared<ApplicationInfo>(std::move(appInfo));
 	}
 }

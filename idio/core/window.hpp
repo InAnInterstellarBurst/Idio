@@ -10,13 +10,13 @@
 
 namespace Idio
 {
-	constexpr std::pair<int32_t, int32_t> s_WindowPosCentred { SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED };
-	constexpr std::pair<int32_t, int32_t> s_WindowPosDefault { SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED };
+	constexpr std::pair<int32_t, int32_t> s_WindowPosCentred{ SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED };
+	constexpr std::pair<int32_t, int32_t> s_WindowPosDefault{ SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED };
 	
 	class Context;
 	class Swapchain;
 
-	enum FullscreenState
+	enum class FullscreenState
 	{
 		Normal,
 		Borderless,
@@ -39,22 +39,26 @@ namespace Idio
 	class Window
 	{
 	public:
-		explicit Window(const WindowCreateInfo& wci);
+		explicit Window(const WindowCreateInfo& wci) noexcept;
 		~Window();
 
-		void post_close_evt();
-		void set_fullscreen_state(FullscreenState s);
+		Window(Window& o) = delete; // Don't copy windows around you dumb fuck
+		Window& operator=(Window& o) = delete;
+		Window(Window&& o) = default;
+		Window& operator=(Window&& o) = default;
+
+		void post_close_evt() const noexcept;
+		void set_fullscreen_state(FullscreenState s) noexcept;
 		void create_swapchain(const Context& c);
 
 		bool clear();
-		void present();
 
-		uint32_t get_id() const { return m_id; }
-		bool is_vsync() const { return m_vsync; }
-		Swapchain& get_swapchain() const { return *m_swapchain; }
+		uint32_t get_id() const noexcept { return m_id; }
+		bool is_vsync() const noexcept { return m_vsync; }
+		Swapchain& get_swapchain() const noexcept { return *m_swapchain; }
 
-		bool operator==(const Window& o) const { return m_id == o.m_id; }
-		operator SDL_Window*() const { return m_handle; }
+		bool operator==(const Window& o) const noexcept { return m_id == o.m_id; }
+		operator SDL_Window*() const noexcept { return m_handle; }
 	private:
 		uint32_t m_id = 0;
 		bool m_vsync = false;

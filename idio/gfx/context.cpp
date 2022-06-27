@@ -39,9 +39,9 @@
 
 namespace Idio
 {
-	constexpr Version s_EngineVersion { 0, 0, 0 };
+	constexpr Version s_EngineVersion{ 0, 0, 0 };
 
-	Context::Context(const Version& v, const std::string& appname, Window& w)
+	Context::Context(const Version& v, const std::string& appname, const Window& w)
 	{
 		std::vector<const char*> vlayers;
 
@@ -142,28 +142,28 @@ namespace Idio
 		m_instance.destroy();
 	}
 
-	void Context::begin_cmd(vk::CommandBuffer buf)
+	void Context::begin_cmd(vk::CommandBuffer buf) const noexcept
 	{
 		vk::CommandBufferBeginInfo bi{};
 		check_vk(buf.begin(bi), "Failed to begin cmd buf");
 	}
 
-	void Context::end_cmd(vk::CommandBuffer buf)
+	void Context::end_cmd(vk::CommandBuffer buf) const noexcept
 	{
 		check_vk(buf.end(), "Failed to record cmd buf");
 	}
 
-	void Context::draw_cmd(vk::CommandBuffer buf, uint32_t vertCount)
+	void Context::draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const noexcept
 	{
 		buf.draw(vertCount, 1, 0, 0);
 	}
 
-	void Context::submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs)
+	void Context::submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs) noexcept
 	{
 		auto fi = sc.get_current_frame_index();
-		vk::Semaphore sigs[] = { m_gfxFinishSems[fi] };
-		vk::Semaphore imgav[] = { sc.get_current_image_avail_sem() };
-		vk::PipelineStageFlags waitstage[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+		const vk::Semaphore sigs[] = { m_gfxFinishSems[fi] };
+		const vk::Semaphore imgav[] = { sc.get_current_image_avail_sem() };
+		const vk::PipelineStageFlags waitstage[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 	
 		vk::SubmitInfo si{};
 		si.waitSemaphoreCount   = 1;

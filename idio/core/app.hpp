@@ -10,11 +10,11 @@
 #include "core/logger.hpp"
 #include "core/event.hpp"
 #include "core/window.hpp"
+#include "gfx/context.hpp"
 
 namespace Idio
 {
 	extern void main(const std::span<char*>& args);
-	class Context;
 	
 	struct Version
 	{
@@ -22,18 +22,18 @@ namespace Idio
 		uint32_t minor;
 		uint32_t patch;
 		
-		uint32_t as_vk_ver() const { return VK_MAKE_VERSION(major, minor, patch); }
+		constexpr uint32_t as_vk_ver() const noexcept { return VK_MAKE_VERSION(major, minor, patch); }
 	};
 
 	struct ApplicationInfo 
 	{
-		std::string name;
 		Version version;
-
+		std::string name;
 		std::string prefPath;
+
 		std::unique_ptr<Logger> gameLogger;
-		Window* mainWindow;
-		Context* context;
+		std::unique_ptr<Context> context;
+		std::unique_ptr<Window> mainWindow;
 	};
 
 	template<class T>
@@ -41,34 +41,38 @@ namespace Idio
 	{
 		t.init();
 		t.tick();
-		t.deinit();
 		t.event_proc(e);
 		t.recreate_pipelines();
-		requires std::same_as<decltype(t.appInfo), const ApplicationInfo*>;
+		requires std::is_default_constructible_v<T>;
+		requires std::same_as<decltype(t.appInfo), std::shared_ptr<const ApplicationInfo>>;
 	};
 
 
 	// In a vain attempt to cut compile times I'll move context stuff out
 	namespace Internal
 	{
-		ApplicationInfo init_engine(const WindowCreateInfo& wci, Version v, std::string name);
-		void deinit_engine(const ApplicationInfo& app);
+		std::shared_ptr<ApplicationInfo> init_engine(const WindowCreateInfo& wci, Version v,
+			std::string name);
 	}
 
 	template<Application App>
-	void run(App&& theirapp, const WindowCreateInfo& wci, Version v, std::string name)
+	void run(const WindowCreateInfo& wci, Version v, std::string name)
 	{
-		auto appInfo = Internal::init_engine(wci, std::move(v), std::move(name));
+		auto appInfo = Internal::init_engine(wci, v, std::move(name));
+		if(appInfo == nullptr) {
+			return;
+		}
 
 		{
-			App app = std::forward<App>(theirapp); // Pro gamer move
-			app.appInfo = &appInfo;
+			App app;
+			app.appInfo = appInfo;
 			app.init();
+
 			bool open = true;
 			bool minimised = false;
 			while(open) {
 				if(!minimised) {
-					if(!appInfo.mainWindow->clear()) {
+					if(!appInfo->mainWindow->clear()) {
 						app.recreate_pipelines();
 						continue;
 					}
@@ -83,7 +87,7 @@ namespace Idio
 					},
 
 					[&](const WindowMinimiseEvent& me) -> bool {
-						if(me.id == appInfo.mainWindow->get_id()) {
+						if(me.id == appInfo->mainWindow->get_id()) {
 							minimised = me.minimised;
 							return true;
 						}
@@ -91,7 +95,7 @@ namespace Idio
 						return false;
 					},
 					[&](const WindowClosedEvent& wce) -> bool { 
-						if(wce.id == appInfo.mainWindow->get_id()) {
+						if(wce.id == appInfo->mainWindow->get_id()) {
 							open = false;
 							return true;
 						}
@@ -99,8 +103,8 @@ namespace Idio
 						return false;
 					},
 					[&](const WindowResizeEvent& wre) -> bool { 
-						if(wre.id == appInfo.mainWindow->get_id()) {
-							appInfo.mainWindow->create_swapchain(*appInfo.context);
+						if(wre.id == appInfo->mainWindow->get_id()) {
+							appInfo->mainWindow->create_swapchain(*appInfo->context);
 							app.recreate_pipelines();
 							return true;
 						}
@@ -109,12 +113,8 @@ namespace Idio
 					}
 				);
 			}
-
-			app.deinit();
 		}
 		
-		Internal::deinit_engine(appInfo);
 		SDL_Quit();
 	}
-
 }

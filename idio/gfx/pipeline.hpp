@@ -33,8 +33,8 @@ namespace Idio
 		~Pipeline();
 
 		void reset();
-		void bind_cmd(vk::CommandBuffer buf);
-		void unbind_cmd(vk::CommandBuffer buf);
+		void bind_cmd(vk::CommandBuffer buf) const noexcept;
+		void unbind_cmd(vk::CommandBuffer buf) const noexcept;
 	private:
 		vk::Device m_dev;
 		const Swapchain& m_swapchain;

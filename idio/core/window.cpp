@@ -13,7 +13,7 @@
 
 namespace Idio
 {
-	Window::Window(const WindowCreateInfo& wci) : m_vsync(wci.vsync)
+	Window::Window(const WindowCreateInfo& wci) noexcept : m_vsync(wci.vsync)
 	{
 		uint32_t winflags = SDL_WINDOW_VULKAN;
 		if(wci.borderless) {
@@ -41,7 +41,7 @@ namespace Idio
 		SDL_DestroyWindow(m_handle);
 	}
 	
-	void Window::post_close_evt()
+	void Window::post_close_evt() const noexcept
 	{
 		SDL_Event close{ .type = SDL_WINDOWEVENT };
 		close.window.event = SDL_WINDOWEVENT_CLOSE;
@@ -49,7 +49,7 @@ namespace Idio
 		SDL_PushEvent(&close);
 	}
 	
-	void Window::set_fullscreen_state(FullscreenState s)
+	void Window::set_fullscreen_state(FullscreenState s) noexcept
 	{
 		if(s == m_fullscrState) {
 			return;
@@ -78,11 +78,5 @@ namespace Idio
 	bool Window::clear()
 	{
 		return m_swapchain->next();
-	}
-
-	void Window::present()
-	{
-		static std::vector<Swapchain*> ssv{ m_swapchain };
-		Swapchain::present(ssv);
 	}
 }

@@ -11,10 +11,15 @@
 class App
 {
 public:
-	const Idio::ApplicationInfo* appInfo;
+	std::shared_ptr<const Idio::ApplicationInfo> appInfo;
 	std::unique_ptr<Idio::Pipeline> pipeline;
 	std::unique_ptr<Idio::CommandPool> cmdpool;
 	std::vector<vk::CommandBuffer> cmdbufs;
+
+	~App()
+	{
+		Idio::check_vk(appInfo->context->get_device().waitIdle(), "Got impatient?");
+	}
 
 	void init() 
 	{
@@ -47,7 +52,8 @@ public:
 		appInfo->context->end_cmd(cmdbuf);
 		appInfo->context->submit_gfx_queue(appInfo->mainWindow->get_swapchain(), { cmdbuf });
 
-		appInfo->mainWindow->present();
+		static std::vector<Idio::Swapchain*> scs{ &appInfo->mainWindow->get_swapchain() };
+		Idio::Swapchain::present(*appInfo->context, scs);
 	}
 
 	void recreate_pipelines()
@@ -55,14 +61,9 @@ public:
 		pipeline->reset();
 	}
 
-	void deinit() 
+	void event_proc(const Idio::Event& e)
 	{
-		Idio::check_vk(appInfo->context->get_device().waitIdle(), "Got impatient?");
-	}
-
-	void event_proc(const Idio::Event& e) 
-	{
-		Idio::evt_handler(e, 
+		Idio::evt_handler(e,
 			[](const Idio::QuitEvent& qe) -> bool { return true; },
 			[](const Idio::WindowClosedEvent& ce) -> bool { return true; },
 			[](const Idio::WindowResizeEvent& re) -> bool { return true; },
@@ -73,5 +74,6 @@ public:
 
 void Idio::main(const std::span<char*>& args)
 {
-	Idio::run(App{}, Idio::WindowCreateInfo{ .resizeable = true }, Idio::Version{0, 0, 1}, std::string("Hello"));
+	Idio::run<App>(Idio::WindowCreateInfo{ .resizeable = true },
+		Idio::Version{0, 0, 1}, "Hello");
 }

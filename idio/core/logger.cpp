@@ -15,7 +15,7 @@ namespace Idio
 {
 	std::unique_ptr<Logger> s_EngineLogger = nullptr;
 	
-	void crash()
+	void crash() noexcept
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical error", "Check logs :(", nullptr);
 		s_EngineLogger->critical("\n---------------------------------------\n| Engine requested a crash (see logs) |\n---------------------------------------");
@@ -26,8 +26,8 @@ namespace Idio
 
 	std::ofstream Logger::s_Logfile;
 
-	Logger::Logger(std::string name, const ApplicationInfo& appinfo) :
-		m_name(std::move(name)), m_fileFilter(LogLevel::Trace)
+	Logger::Logger(const std::string& name, const ApplicationInfo& appinfo) :
+		m_name(name), m_fileFilter(LogLevel::Trace)
 	{
 		if constexpr(ID_DEBUG) {
 			m_consFilter = LogLevel::Info;
@@ -41,7 +41,7 @@ namespace Idio
 	}
 
 	void Logger::log_base(LogLevel l, const std::string& fmsg, 
-		const std::string& cmsg)
+		const std::string& cmsg) noexcept
 	{
 		if(l >= m_consFilter) {
 			std::cout << cmsg;

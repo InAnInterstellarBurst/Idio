@@ -18,17 +18,16 @@ namespace Idio
 		~Swapchain();
 
 		void recreate();
-		bool next();
+		bool next() noexcept;
 
-		
-		vk::Extent2D get_extent() const { return m_extent; }
-		vk::Format get_format() const { return m_format.format; }
-		auto get_image_views() const { return m_swapchainImageViews; }
-		uint32_t get_current_image_index() const { return m_imageIndex; }
-		uint32_t get_current_frame_index() const { return m_currentFrame; }
-		auto get_current_image_avail_sem() const { return m_imageAvailSems[m_currentFrame]; }
+		vk::Extent2D get_extent() const noexcept { return m_extent; }
+		vk::Format get_format() const noexcept { return m_format.format; }
+		auto get_image_views() const noexcept { return m_swapchainImageViews; }
+		uint32_t get_current_image_index() const noexcept { return m_imageIndex; }
+		uint32_t get_current_frame_index() const noexcept { return m_currentFrame; }
+		auto get_current_image_avail_sem() const noexcept { return m_imageAvailSems[m_currentFrame]; }
 
-		static void present(std::vector<Swapchain*>& scs);
+		static void present(const Context& c, std::vector<Swapchain*>& scs) noexcept;
 	private:
 		const Window& m_window;
 		const Context& m_context;

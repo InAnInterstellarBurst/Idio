@@ -1,0 +1,18 @@
+g++
+
+-I./
+-Iidio/
+-Idep/vma/include/
+-Idep/fmt/include/
+-Idep/SDL2/include/
+-Idep/spdlog/include/
+
+-Wall
+-Wextra
+-Werror
+-Wno-unused-parameter
+
+-DID_DEBUG=1
+
+%cpp -std=c++20
+%hpp --include=idio/pch.hpp

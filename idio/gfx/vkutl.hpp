@@ -11,7 +11,7 @@
 namespace Idio
 {
 	template<typename T>
-	[[nodiscard]] T check_vk(const vk::ResultValue<T>& rv, std::string_view msg)
+	[[nodiscard]] T check_vk(const vk::ResultValue<T>& rv, std::string_view msg) noexcept
 	{
 		if(rv.result != vk::Result::eSuccess) {
 			s_EngineLogger->critical("[Vulkan]: {}, {}", vk::to_string(rv.result), msg);
@@ -21,7 +21,7 @@ namespace Idio
 		return rv.value;
 	}
 
-	inline void check_vk(vk::Result r, std::string_view msg)
+	inline void check_vk(vk::Result r, std::string_view msg) noexcept
 	{
 		if(r != vk::Result::eSuccess) {
 			s_EngineLogger->critical("[Vulkan]: {}, {}", vk::to_string(r), msg);

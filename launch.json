@@ -5,16 +5,10 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${command:cmake.launchTargetPath}",
+            "program": "${workspaceFolder}/bin/testapp/testapp",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.getLaunchTargetDirectory}",
-            "environment": [
-                {
-                    "name": "PATH",
-                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
-                }
-            ],
+            "cwd": "${workspaceFolder}/bin/testapp",
             "MIMode": "gdb",
             "setupCommands": [
                 {

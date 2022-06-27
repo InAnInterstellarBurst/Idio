@@ -21,43 +21,43 @@ namespace Idio
 		Critical
 	};
 
-	[[noreturn]] void crash();
+	[[noreturn]] void crash() noexcept;
 
 	class Logger
 	{
-		friend void Idio::crash();
+		friend void Idio::crash() noexcept;
 	public:
-		Logger(std::string name, const ApplicationInfo& appinfo);
+		Logger(const std::string& name, const ApplicationInfo& appinfo);
 
-		void set_file_filter(LogLevel l) { m_fileFilter = l; }
-		void set_console_filter(LogLevel l) { m_consFilter = l; }
+		void set_file_filter(LogLevel l) noexcept { m_fileFilter = l; }
+		void set_console_filter(LogLevel l) noexcept { m_consFilter = l; }
 
 		template<typename... Args>
-		void trace(fmt::format_string<Args...> fmt, Args&&... args)
+		void trace(fmt::format_string<Args...> fmt, Args&&... args) noexcept
 		{
 			log(LogLevel::Trace, fmt, std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		void info(fmt::format_string<Args...> fmt, Args&&... args)
+		void info(fmt::format_string<Args...> fmt, Args&&... args) noexcept
 		{
 			log(LogLevel::Info, fmt, std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		void warning(fmt::format_string<Args...> fmt, Args&&... args)
+		void warning(fmt::format_string<Args...> fmt, Args&&... args) noexcept
 		{
 			log(LogLevel::Warning, fmt, std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		void error(fmt::format_string<Args...> fmt, Args&&... args)
+		void error(fmt::format_string<Args...> fmt, Args&&... args) noexcept
 		{
 			log(LogLevel::Error, fmt, std::forward<Args>(args)...);
 		}
 		
 		template<typename... Args>
-		void critical(fmt::format_string<Args...> fmt, Args&&... args)
+		void critical(fmt::format_string<Args...> fmt, Args&&... args) noexcept
 		{
 			log(LogLevel::Critical, fmt, std::forward<Args>(args)...);
 		}
@@ -67,7 +67,7 @@ namespace Idio
 		LogLevel m_consFilter;
 
 		template<typename... Args>
-		void log(LogLevel ll, fmt::format_string<Args...>& fmt, Args&&... args)
+		void log(LogLevel ll, fmt::format_string<Args...>& fmt, Args&&... args) noexcept
 		{
 			auto fmsg = fmt::format(fmt, std::forward<Args>(args)...);
 			auto fopt = fmt::format(s_FileOptFmt, m_name, ll_to_str(ll), fmsg);
@@ -76,13 +76,13 @@ namespace Idio
 			log_base(ll, fopt, copt);
 		}
 
-		void log_base(LogLevel l, const std::string& fmsg, const std::string& cmsg);
+		void log_base(LogLevel l, const std::string& fmsg, const std::string& cmsg) noexcept;
 
 		static std::ofstream s_Logfile;
 		constexpr static const char* s_ConsOptFmt = "{}[{}]: {}{}\n";
 		constexpr static const char* s_FileOptFmt = "[{}, {}]: {}\n";
 
-		constexpr const char* ll_to_str(LogLevel l)
+		constexpr const char* ll_to_str(LogLevel l) noexcept
 		{
 			switch(l) {
 			case LogLevel::Info:
@@ -98,7 +98,7 @@ namespace Idio
 			}
 		}
 
-		constexpr const char* ll_to_colour(LogLevel l)
+		constexpr const char* ll_to_colour(LogLevel l) noexcept
 		{
 			switch(l) {
 			case LogLevel::Info:

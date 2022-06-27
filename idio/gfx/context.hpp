@@ -44,12 +44,10 @@ namespace Idio
 			}
 		}
 
-		constexpr bool operator<(const PhysicalDevice& other)
+		constexpr bool operator<(const PhysicalDevice& other) const noexcept
 		{
 			constexpr auto uintmax = std::numeric_limits<uint32_t>::max();
-			if(gfxQueueFamilyIdx == uintmax 
-				&& other.gfxQueueFamilyIdx != uintmax) {
-				
+			if(gfxQueueFamilyIdx == uintmax && other.gfxQueueFamilyIdx != uintmax) {
 				return true;
 			}
 
@@ -64,22 +62,22 @@ namespace Idio
 	class Context
 	{
 	public:
-		Context(const Version& v, const std::string& appname, Window& w);
+		Context(const Version& v, const std::string& appname, const Window& w);
 		~Context();
 
-		void begin_cmd(vk::CommandBuffer buf);
-		void end_cmd(vk::CommandBuffer buf);
-		void draw_cmd(vk::CommandBuffer buf, uint32_t vertCount);
+		void begin_cmd(vk::CommandBuffer buf) const noexcept;
+		void end_cmd(vk::CommandBuffer buf) const noexcept;
+		void draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const noexcept;
 		
-		void submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs);
+		void submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs) noexcept;
 
-		vk::Instance get_instance() const { return m_instance; }
-		vk::Device get_device() const { return m_device; }
-		PhysicalDevice get_physdev() const { return m_pdev; }
+		vk::Instance get_instance() const noexcept { return m_instance; }
+		vk::Device get_device() const noexcept { return m_device; }
+		PhysicalDevice get_physdev() const noexcept { return m_pdev; }
 		
-		vk::Queue get_gfx_queue() const { return m_gfxQueue; }
-		auto get_gfx_queue_finish_sems() const { return m_gfxFinishSems; }
-		auto get_gfx_queue_fences() const { return m_gfxQueueFences; }
+		vk::Queue get_gfx_queue() const noexcept { return m_gfxQueue; }
+		auto get_gfx_queue_finish_sems() const noexcept { return m_gfxFinishSems; }
+		auto get_gfx_queue_fences() const noexcept { return m_gfxQueueFences; }
 	private:
 		vk::Instance m_instance;
 		std::unique_ptr<vk::DispatchLoaderDynamic> m_dispatchLoader;

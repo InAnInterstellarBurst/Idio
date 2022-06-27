@@ -56,7 +56,7 @@ namespace Idio
 		create();
 	}
 
-	bool Swapchain::next()
+	bool Swapchain::next() noexcept
 	{
 		constexpr uint64_t intmax = std::numeric_limits<uint64_t>::max();
 		vk::Fence currentfence = m_context.get_gfx_queue_fences()[m_currentFrame];
@@ -163,9 +163,8 @@ namespace Idio
 		}
 	}
 
-	void Swapchain::present(std::vector<Swapchain*>& scs)
+	void Swapchain::present(const Context& c, std::vector<Swapchain*>& scs) noexcept
 	{
-		const Context& c = scs[0]->m_context; // God forgive me
 		std::vector<vk::SwapchainKHR> swaps(scs.size());
 		std::vector<uint32_t> imgidxs(scs.size());
 		std::vector<vk::Semaphore> waitSems(scs.size());
