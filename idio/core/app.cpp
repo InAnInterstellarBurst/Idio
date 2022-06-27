@@ -21,27 +21,25 @@ namespace Idio::Internal
 			return nullptr;
 		}
 
-		ApplicationInfo appInfo{
-			.version = v,
-			.name = std::move(name),
-			.prefPath = prefpath,
-			.gameLogger = std::make_unique<Logger>(appInfo.name, appInfo),
-			.context = nullptr,
-			.mainWindow = nullptr
-		};
+		auto appInfo = std::make_shared<ApplicationInfo>();
+		appInfo->version = v;
+		appInfo->name = std::move(name);
+		appInfo->prefPath = prefpath;
+		appInfo->gameLogger = std::make_unique<Logger>(appInfo->name, *appInfo);
+		appInfo->context = nullptr;
+		appInfo->mainWindow = nullptr;
 
 		SDL_free(prefpath);
 		
-		s_EngineLogger = std::make_unique<Logger>("Idio", appInfo);
+		s_EngineLogger = std::make_unique<Logger>("Idio", *appInfo);
 		if(SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0) {
 			s_EngineLogger->critical("Failed to init SDL: {}", SDL_GetError());
 			crash();
 		}
 
-		appInfo.mainWindow = std::make_unique<Window>(wci);
-		appInfo.context = std::make_unique<Context>(appInfo.version, appInfo.name,
-			*appInfo.mainWindow);
-		appInfo.mainWindow->create_swapchain(*appInfo.context);
-		return std::make_shared<ApplicationInfo>(std::move(appInfo));
+		appInfo->mainWindow = std::make_unique<Window>(wci);
+		appInfo->context = std::make_unique<Context>(v, appInfo->name, *appInfo->mainWindow);
+		appInfo->mainWindow->create_swapchain(*appInfo->context);
+		return appInfo;
 	}
 }

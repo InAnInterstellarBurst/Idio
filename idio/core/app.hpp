@@ -34,6 +34,12 @@ namespace Idio
 		std::unique_ptr<Logger> gameLogger;
 		std::unique_ptr<Context> context;
 		std::unique_ptr<Window> mainWindow;
+
+		~ApplicationInfo()
+		{
+			std::cout << "hi\n";
+			SDL_Quit();
+		}
 	};
 
 	template<class T>
@@ -58,63 +64,59 @@ namespace Idio
 	template<Application App>
 	void run(const WindowCreateInfo& wci, Version v, std::string name)
 	{
+		App app;
 		auto appInfo = Internal::init_engine(wci, v, std::move(name));
 		if(appInfo == nullptr) {
 			return;
 		}
 
-		{
-			App app;
-			app.appInfo = appInfo;
-			app.init();
+		app.appInfo = appInfo;
+		app.init();
 
-			bool open = true;
-			bool minimised = false;
-			while(open) {
-				if(!minimised) {
-					if(!appInfo->mainWindow->clear()) {
-						app.recreate_pipelines();
-						continue;
-					}
-
-					app.tick();
+		bool open = true;
+		bool minimised = false;
+		while(open) {
+			if(!minimised) {
+				if(!appInfo->mainWindow->clear()) {
+					app.recreate_pipelines();
+					continue;
 				}
 
-				poll_evts(app,
-					[&](const QuitEvent& qe) -> bool { 
-						open = false; 
-						return true; 
-					},
-
-					[&](const WindowMinimiseEvent& me) -> bool {
-						if(me.id == appInfo->mainWindow->get_id()) {
-							minimised = me.minimised;
-							return true;
-						}
-
-						return false;
-					},
-					[&](const WindowClosedEvent& wce) -> bool { 
-						if(wce.id == appInfo->mainWindow->get_id()) {
-							open = false;
-							return true;
-						}
-
-						return false;
-					},
-					[&](const WindowResizeEvent& wre) -> bool { 
-						if(wre.id == appInfo->mainWindow->get_id()) {
-							appInfo->mainWindow->create_swapchain(*appInfo->context);
-							app.recreate_pipelines();
-							return true;
-						}
-
-						return false;
-					}
-				);
+				app.tick();
 			}
+
+			poll_evts(app,
+				[&](const QuitEvent& qe) -> bool {
+					open = false;
+					return true;
+				},
+
+				[&](const WindowMinimiseEvent& me) -> bool {
+					if(me.id == appInfo->mainWindow->get_id()) {
+						minimised = me.minimised;
+						return true;
+					}
+
+					return false;
+				},
+				[&](const WindowClosedEvent& wce) -> bool {
+					if(wce.id == appInfo->mainWindow->get_id()) {
+						open = false;
+						return true;
+					}
+
+					return false;
+				},
+				[&](const WindowResizeEvent& wre) -> bool {
+					if(wre.id == appInfo->mainWindow->get_id()) {
+						appInfo->mainWindow->create_swapchain(*appInfo->context);
+						app.recreate_pipelines();
+						return true;
+					}
+
+					return false;
+				}
+			);
 		}
-		
-		SDL_Quit();
 	}
 }

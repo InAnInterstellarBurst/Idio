@@ -26,7 +26,7 @@ endif()
 option(ENABLE_THREAD_SANITISER Off)
 
 function(enable_sanitisers target_name)
-	if(CMAKE_C_COMPILER_ID STREQUAL "MSVC" OR ${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	if(CMAKE_C_COMPILER_ID STREQUAL "MSVC" OR NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		return()
 	endif()
 
