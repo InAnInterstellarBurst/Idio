@@ -21,6 +21,7 @@
 
 #define VULKAN_HPP_NO_EXCEPTIONS
 #include <vulkan/vulkan.hpp>
+#include <vk_mem_alloc.h>
 
 #include <SDL.h>
 #include <fmt/format.h>

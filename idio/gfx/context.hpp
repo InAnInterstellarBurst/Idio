@@ -75,7 +75,8 @@ namespace Idio
 		vk::Instance get_instance() const noexcept { return m_instance; }
 		vk::Device get_device() const noexcept { return m_device; }
 		PhysicalDevice get_physdev() const noexcept { return m_pdev; }
-		
+		VmaAllocator get_allocator() const noexcept { return m_alloc; }
+
 		vk::Queue get_gfx_queue() const noexcept { return m_gfxQueue; }
 		auto get_gfx_queue_finish_sems() const noexcept { return m_gfxFinishSems; }
 		auto get_gfx_queue_fences() const noexcept { return m_gfxQueueFences; }
@@ -87,6 +88,7 @@ namespace Idio
 		vk::Queue m_gfxQueue;
 		std::array<vk::Fence, s_MaxFramesProcessing> m_gfxQueueFences;
 		std::array<vk::Semaphore, s_MaxFramesProcessing> m_gfxFinishSems;
+		VmaAllocator m_alloc;
 
 #if ID_DEBUG
 		vk::DebugUtilsMessengerEXT m_dbgmsgr;

@@ -28,4 +28,9 @@ namespace Idio
 			crash();
 		}
 	}
+
+	inline void check_vk(VkResult r, std::string_view msg)
+	{
+		check_vk(vk::Result{r}, msg);
+	}
 }

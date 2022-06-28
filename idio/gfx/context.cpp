@@ -126,6 +126,12 @@ namespace Idio
 			m_gfxQueueFences[i] = check_vk(m_device.createFence(fci), "Failed to create render finished fence");
 			m_gfxFinishSems[i] = check_vk(m_device.createSemaphore(sci), "Failed to create gfx finish sem");
 		}
+
+		VmaAllocatorCreateInfo aci{};
+		aci.device = m_device;
+		aci.instance = m_instance;
+		aci.physicalDevice = m_pdev.handle;
+		check_vk(vmaCreateAllocator(&aci, &m_alloc), "Failed to create bfr alloc");
 	}
 
 	Context::~Context()
@@ -135,6 +141,7 @@ namespace Idio
 			m_device.destroySemaphore(m_gfxFinishSems[i]);
 		}
 		
+		vmaDestroyAllocator(m_alloc);
 		m_device.destroy();
 #if ID_DEBUG
 		m_instance.destroyDebugUtilsMessengerEXT(m_dbgmsgr, nullptr, *m_dispatchLoader);
