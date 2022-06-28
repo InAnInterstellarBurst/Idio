@@ -25,7 +25,7 @@ namespace Idio
 		constexpr uint32_t as_vk_ver() const noexcept { return VK_MAKE_VERSION(major, minor, patch); }
 	};
 
-	struct ApplicationInfo 
+	struct ApplicationInfo
 	{
 		Version version;
 		std::string name;
@@ -48,34 +48,33 @@ namespace Idio
 	};
 
 
-	// In a vain attempt to cut compile times I'll move context stuff out
+	// In a vain attempt to cut compile times I'll move this out
 	namespace Internal
 	{
-		std::shared_ptr<ApplicationInfo> init_engine(const WindowCreateInfo& wci, Version v,
-			std::string name);
+		ApplicationInfo* init_engine(const WindowCreateInfo& wci, Version v, std::string name);
 	}
 
 	template<Application App>
 	void run(const WindowCreateInfo& wci, Version v, std::string name)
 	{
 		auto appInfo = Internal::init_engine(wci, v, std::move(name));
-		App app;
-		app.appInfo = appInfo.get();
-		app.init();
+		App* app = new App();
+		app->appInfo = appInfo;
+		app->init();
 
 		bool open = true;
 		bool minimised = false;
 		while(open) {
 			if(!minimised) {
 				if(!appInfo->mainWindow->clear()) {
-					app.recreate_pipelines();
+					app->recreate_pipelines();
 					continue;
 				}
 
-				app.tick();
+				app->tick();
 			}
 
-			poll_evts(app,
+			poll_evts(*app,
 				[&](const QuitEvent& qe) -> bool {
 					open = false;
 					return true;
@@ -100,7 +99,7 @@ namespace Idio
 				[&](const WindowResizeEvent& wre) -> bool {
 					if(wre.id == appInfo->mainWindow->get_id()) {
 						appInfo->mainWindow->create_swapchain(*appInfo->context);
-						app.recreate_pipelines();
+						app->recreate_pipelines();
 						return true;
 					}
 
@@ -108,5 +107,9 @@ namespace Idio
 				}
 			);
 		}
+
+		delete app;
+		delete appInfo;
+		SDL_Quit();
 	}
 }

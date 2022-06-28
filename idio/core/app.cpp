@@ -12,8 +12,7 @@
 
 namespace Idio::Internal
 {
-	std::shared_ptr<ApplicationInfo> init_engine(const WindowCreateInfo& wci, Version v,
-		std::string name)
+	ApplicationInfo* init_engine(const WindowCreateInfo& wci, Version v, std::string name)
 	{
 		char* prefpath = SDL_GetPrefPath("idio", name.c_str());
 		if(prefpath == nullptr) {
@@ -21,7 +20,7 @@ namespace Idio::Internal
 			return {};
 		}
 
-		auto appInfo = std::make_shared<ApplicationInfo>();
+		auto appInfo = new ApplicationInfo();
 		appInfo->version = v,
 		appInfo->name = std::move(name),
 		appInfo->prefPath = prefpath,

@@ -15,7 +15,7 @@ namespace Idio
 {
 	std::unique_ptr<Logger> s_EngineLogger = nullptr;
 	
-	void crash() noexcept
+	void crash()
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical error", "Check logs :(", nullptr);
 		s_EngineLogger->critical("\n---------------------------------------\n| Engine requested a crash (see logs) |\n---------------------------------------");
@@ -41,7 +41,7 @@ namespace Idio
 	}
 
 	void Logger::log_base(LogLevel l, const std::string& fmsg, 
-		const std::string& cmsg) noexcept
+		const std::string& cmsg)
 	{
 		if(l >= m_consFilter) {
 			std::cout << cmsg;

@@ -74,6 +74,5 @@ public:
 
 void Idio::main(const std::span<char*>& args)
 {
-	Idio::run<App>(Idio::WindowCreateInfo{ .resizeable = true },
-		Idio::Version{0, 0, 1}, "Hello");
+	Idio::run<App>(Idio::WindowCreateInfo{ .resizeable = true }, Idio::Version{0, 0, 1}, "Hello");
 }

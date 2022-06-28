@@ -25,8 +25,9 @@ namespace Idio
 		uint32_t gfxQueueFamilyIdx = std::numeric_limits<uint32_t>::max();
 
 		PhysicalDevice() = default;
-		PhysicalDevice(vk::PhysicalDevice pdev) : handle(pdev),
-			props(handle.getProperties()), supportedFeatures(handle.getFeatures()) // Implicit on purpose
+		PhysicalDevice(vk::PhysicalDevice pdev) noexcept 
+			: handle(pdev), props(handle.getProperties()), 
+			supportedFeatures(handle.getFeatures()) // Implicit on purpose
 		{
 			auto qfprops = handle.getQueueFamilyProperties();
 			uint32_t i = 0;
@@ -65,11 +66,11 @@ namespace Idio
 		Context(const Version& v, const std::string& appname, const Window& w);
 		~Context();
 
-		void begin_cmd(vk::CommandBuffer buf) const noexcept;
-		void end_cmd(vk::CommandBuffer buf) const noexcept;
-		void draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const noexcept;
+		void begin_cmd(vk::CommandBuffer buf) const;
+		void end_cmd(vk::CommandBuffer buf) const;
+		void draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const;
 		
-		void submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs) noexcept;
+		void submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs);
 
 		vk::Instance get_instance() const noexcept { return m_instance; }
 		vk::Device get_device() const noexcept { return m_device; }

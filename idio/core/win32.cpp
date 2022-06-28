@@ -40,6 +40,5 @@ int WINAPI WinMain(HINSTANCE p0, HINSTANCE p1, LPSTR p2, int p3)
 #if ID_DEBUG
 	system("Pause");
 #endif
-	SDL_Quit();
 	return EXIT_SUCCESS;
 }

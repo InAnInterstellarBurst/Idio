@@ -21,11 +21,11 @@ namespace Idio
 		Critical
 	};
 
-	[[noreturn]] void crash() noexcept;
+	[[noreturn]] void crash();
 
 	class Logger
 	{
-		friend void Idio::crash() noexcept;
+		friend void Idio::crash();
 	public:
 		Logger(const std::string& name, const ApplicationInfo& appinfo);
 
@@ -33,31 +33,31 @@ namespace Idio
 		void set_console_filter(LogLevel l) noexcept { m_consFilter = l; }
 
 		template<typename... Args>
-		void trace(fmt::format_string<Args...> fmt, Args&&... args) noexcept
+		void trace(fmt::format_string<Args...> fmt, Args&&... args)
 		{
 			log(LogLevel::Trace, fmt, std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		void info(fmt::format_string<Args...> fmt, Args&&... args) noexcept
+		void info(fmt::format_string<Args...> fmt, Args&&... args)
 		{
 			log(LogLevel::Info, fmt, std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		void warning(fmt::format_string<Args...> fmt, Args&&... args) noexcept
+		void warning(fmt::format_string<Args...> fmt, Args&&... args)
 		{
 			log(LogLevel::Warning, fmt, std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		void error(fmt::format_string<Args...> fmt, Args&&... args) noexcept
+		void error(fmt::format_string<Args...> fmt, Args&&... args)
 		{
 			log(LogLevel::Error, fmt, std::forward<Args>(args)...);
 		}
 		
 		template<typename... Args>
-		void critical(fmt::format_string<Args...> fmt, Args&&... args) noexcept
+		void critical(fmt::format_string<Args...> fmt, Args&&... args)
 		{
 			log(LogLevel::Critical, fmt, std::forward<Args>(args)...);
 		}
@@ -67,7 +67,7 @@ namespace Idio
 		LogLevel m_consFilter;
 
 		template<typename... Args>
-		void log(LogLevel ll, fmt::format_string<Args...>& fmt, Args&&... args) noexcept
+		void log(LogLevel ll, fmt::format_string<Args...>& fmt, Args&&... args)
 		{
 			auto fmsg = fmt::format(fmt, std::forward<Args>(args)...);
 			auto fopt = fmt::format(s_FileOptFmt, m_name, ll_to_str(ll), fmsg);
@@ -76,7 +76,7 @@ namespace Idio
 			log_base(ll, fopt, copt);
 		}
 
-		void log_base(LogLevel l, const std::string& fmsg, const std::string& cmsg) noexcept;
+		void log_base(LogLevel l, const std::string& fmsg, const std::string& cmsg);
 
 		static std::ofstream s_Logfile;
 		constexpr static const char* s_ConsOptFmt = "{}[{}]: {}{}\n";

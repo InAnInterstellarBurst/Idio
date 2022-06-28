@@ -142,23 +142,23 @@ namespace Idio
 		m_instance.destroy();
 	}
 
-	void Context::begin_cmd(vk::CommandBuffer buf) const noexcept
+	void Context::begin_cmd(vk::CommandBuffer buf) const
 	{
 		vk::CommandBufferBeginInfo bi{};
 		check_vk(buf.begin(bi), "Failed to begin cmd buf");
 	}
 
-	void Context::end_cmd(vk::CommandBuffer buf) const noexcept
+	void Context::end_cmd(vk::CommandBuffer buf) const
 	{
 		check_vk(buf.end(), "Failed to record cmd buf");
 	}
 
-	void Context::draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const noexcept
+	void Context::draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const
 	{
 		buf.draw(vertCount, 1, 0, 0);
 	}
 
-	void Context::submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs) noexcept
+	void Context::submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs)
 	{
 		auto fi = sc.get_current_frame_index();
 		const vk::Semaphore sigs[] = { m_gfxFinishSems[fi] };

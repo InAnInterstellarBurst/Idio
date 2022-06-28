@@ -156,7 +156,7 @@ namespace Idio
 		m_dev.destroyRenderPass(m_rpass);
 	}
 
-	void Pipeline::bind_cmd(vk::CommandBuffer buf) const noexcept
+	void Pipeline::bind_cmd(vk::CommandBuffer buf) const
 	{
 		vk::ClearValue cv{{std::array<float, 4>{0.0f, 0.5f, 0.0f, 1.0f}}};
 
@@ -184,7 +184,7 @@ namespace Idio
 		buf.setScissor(0, { scis});
 	}
 
-	void Pipeline::unbind_cmd(vk::CommandBuffer buf) const noexcept
+	void Pipeline::unbind_cmd(vk::CommandBuffer buf) const
 	{
 		buf.endRenderPass();
 	}
