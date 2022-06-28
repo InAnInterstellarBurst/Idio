@@ -20,12 +20,17 @@ namespace Idio
 	};
 
 	template<BufferType T>
+	struct BufferView
+	{};
+
+	template<BufferType T>
 	class Buffer
 	{
 	public:
 		Buffer(const Context& c, vk::DeviceSize sz, bool staging = false);
 		~Buffer();
 
+		std::weak_ptr<BufferView<T>> get_view(size_t sz);
 		operator vk::Buffer() const noexcept { return m_buffer; }
 	private:
 		const Context& m_context;
@@ -37,5 +42,7 @@ namespace Idio
 		vk::Buffer m_buffer;
 		VmaAllocation m_alloc;
 		VmaAllocationInfo m_allocInfo;
+
+		std::vector<std::shared_ptr<BufferView<T>> m_views;
 	};
 }
