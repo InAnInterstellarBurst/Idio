@@ -26,6 +26,7 @@ target_link_libraries(idio
 	PRIVATE
 		project_settings
 	PUBLIC
+		glm
 		VulkanMemoryAllocator
 		fmt::fmt
 		SDL2-static

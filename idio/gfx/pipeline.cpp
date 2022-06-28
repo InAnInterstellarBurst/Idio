@@ -54,8 +54,30 @@ namespace Idio
 		fsci.stage  = vk::ShaderStageFlagBits::eFragment;
 		vk::PipelineShaderStageCreateInfo stages[2] = { vsci, fsci };
 
-		//TODO: Vertex buffers might be ideal yes
+		std::vector<vk::VertexInputBindingDescription> bindDescs(pci.vertexLayouts.size());
+		std::transform(pci.vertexLayouts.begin(), pci.vertexLayouts.end(), bindDescs.begin(), 
+			[](const VertexLayout& l) { 
+				return vk::VertexInputBindingDescription{
+					l.binding, l.stride,
+					l.instance ? vk::VertexInputRate::eInstance : vk::VertexInputRate::eVertex
+				};
+			}
+		);
+
+		std::vector<vk::VertexInputAttributeDescription> attrdsc(pci.attributeDescs.size());
+		std::transform(pci.attributeDescs.begin(), pci.attributeDescs.end(), attrdsc.begin(),
+			[](const AttributeDescription& f) {
+				return vk::VertexInputAttributeDescription{
+					f.location, f.binding, static_cast<vk::Format>(f.format), f.offset
+				};
+			}
+		);
+
 		vk::PipelineVertexInputStateCreateInfo vci{};
+		vci.vertexBindingDescriptionCount   = static_cast<uint32_t>(bindDescs.size());
+		vci.pVertexBindingDescriptions      = bindDescs.data();
+		vci.vertexAttributeDescriptionCount = static_cast<uint32_t>(attrdsc.size());
+		vci.pVertexAttributeDescriptions    = attrdsc.data();
 
 		vk::PipelineInputAssemblyStateCreateInfo iaci{};
 		iaci.topology = pci.topology;

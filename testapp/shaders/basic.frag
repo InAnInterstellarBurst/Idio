@@ -6,8 +6,10 @@
 
 #version 450
 
-layout(location = 0) out vec4 outColour;
+layout(location = 0)in vec3 pass_colour;
+
+layout(location = 0) out vec4 out_colour;
 
 void main() {
-    outColour = vec4(1.0, 0.0, 0.0, 1.0);
+    out_colour = vec4(pass_colour.xyz, 1.0);
 }

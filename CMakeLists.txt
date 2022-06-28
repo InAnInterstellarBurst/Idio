@@ -34,6 +34,7 @@ set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 add_subdirectory(dep/fmt)
 add_subdirectory(dep/SDL2)
 add_subdirectory(dep/vma)
+add_subdirectory(dep/glm)
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(idio)
