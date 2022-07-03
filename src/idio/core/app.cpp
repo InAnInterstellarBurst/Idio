@@ -24,6 +24,8 @@ namespace idio
 	Application::Application(std::string name, Version v, const WindowCreateInfo &wci) :
 		m_version(v), m_name(std::move(name)), m_windowCreateInfo(wci)
 	{
+		assert(s_Instance == nullptr);
+		s_Instance = this;
 	}
 
 	void Application::run()
@@ -165,7 +167,6 @@ void idio_main(int argc, char **argv)
 {
 	std::span<char *> args(argv, static_cast<size_t>(argc));
 	idio::Application *app = idio::make_application(args);
-	idio::Application::s_Instance = app;
 	idio::internal::init_engine();
 	app->run();
 	delete app;

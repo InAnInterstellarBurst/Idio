@@ -6,8 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "pch.hpp"
-#include "core/app.hpp"
+extern void idio_main(int argc, char **argv);
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -35,8 +34,7 @@ int WINAPI WinMain(HINSTANCE p0, HINSTANCE p1, LPSTR p2, int p3)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
 #endif
-	std::span<char*> args(__argv, __argc);
-	Idio::main(args);
+	idio_main(argc, argv);
 #if ID_DEBUG
 	system("Pause");
 #endif

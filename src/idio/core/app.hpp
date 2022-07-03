@@ -13,8 +13,6 @@
 #include "event.hpp"
 #include "window.hpp"
 
-extern void idio_main(int argc, char **argv);
-
 namespace idio
 {
 	class Context;
@@ -55,7 +53,6 @@ namespace idio
 
 		friend void internal::init_engine();
 		friend void internal::deinit_engine();
-		friend void ::idio_main(int argc, char **argv);
 	};
 
 	Logger make_logger(const std::string &pref_dir, const std::string &name);

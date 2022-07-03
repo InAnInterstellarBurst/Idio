@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "pch.hpp"
+extern void idio_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
