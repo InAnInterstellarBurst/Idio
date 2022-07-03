@@ -4,37 +4,47 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-file(GLOB GFX_GLOB gfx/*.cpp gfx/*.hpp)
-file(GLOB CORE_GLOB core/*.cpp core/*.hpp)
+set(SRCS_CORE
+	app.hpp app.cpp event.hpp
+	window.cpp window.hpp types.hpp
+)
+
+set(SRCS_GFX
+	vkutl.hpp
+	context.hpp context.cpp
+	swapchain.hpp swapchain.cpp
+	pipeline.hpp pipeline.cpp
+	buffer.hpp buffer.cpp
+)
+
 if(WIN32)
-	list(FILTER CORE_GLOB EXCLUDE REGEX ".*linux\\.cpp$")
+	list(APPEND SRCS_CORE "win32.cpp")
 else()
-	list(FILTER CORE_GLOB EXCLUDE REGEX ".*win32\\.cpp$")
+	list(APPEND SRCS_CORE "linux.cpp")
 endif()
 
-set(SRCS
-	pch.hpp idio.hpp
-	${CORE_GLOB}
-	${GFX_GLOB}
+list(TRANSFORM SRCS_CORE PREPEND "core/")
+list(TRANSFORM SRCS_GFX PREPEND "gfx/")
+add_library(idio STATIC
 	.licenseheader
+	pch.hpp idio.hpp
+	"${SRCS_CORE}"
+	"${SRCS_GFX}"
 )
 
-add_library(idio STATIC ${SRCS})
 target_precompile_headers(idio PRIVATE pch.hpp)
-
 target_link_libraries(idio
 	PRIVATE
-		project_settings
+	project_settings
 	PUBLIC
-		glm
-		VulkanMemoryAllocator
-		fmt::fmt
-		SDL2-static
-		Vulkan::Vulkan
+	glm
+	VulkanMemoryAllocator
+	spdlog
+	SDL2-static
+	Vulkan::Vulkan
 )
 
-target_include_directories(idio INTERFACE ${CMAKE_SOURCE_DIR})
-target_include_directories(idio PUBLIC ${CMAKE_SOURCE_DIR}/idio)
+target_include_directories(idio INTERFACE ${CMAKE_SOURCE_DIR}/src/)
 target_include_directories(idio PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRCS})

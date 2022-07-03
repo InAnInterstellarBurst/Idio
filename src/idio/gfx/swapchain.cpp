@@ -8,25 +8,27 @@
 
 #include "pch.hpp"
 #include "swapchain.hpp"
+
 #include <SDL_vulkan.h>
+
 #include "vkutl.hpp"
 #include "context.hpp"
 #include "core/window.hpp"
 
-namespace Idio
+namespace idio
 {
-	Swapchain::Swapchain(const Context& c, const Window& w) :
+	Swapchain::Swapchain(const Context &c, const Window &w) :
 		m_window(w), m_context(c)
 	{
 		VkSurfaceKHR rsurf;
 		if(!SDL_Vulkan_CreateSurface(w, c.get_instance(), &rsurf)) {
 			s_EngineLogger->critical("Failed to create surface: {}", SDL_GetError());
-			crash();
+			Application::crash();
 		}
 		m_surface = rsurf;
 
 		m_imageAvailSems.resize(s_MaxFramesProcessing);
-		vk::SemaphoreCreateInfo sci{};
+		vk::SemaphoreCreateInfo sci {};
 		for(uint32_t i = 0; i < s_MaxFramesProcessing; i++) {
 			m_imageAvailSems[i] = check_vk(c.get_device().createSemaphore(sci), "Failed to create image available semaphore");
 		}
@@ -64,14 +66,12 @@ namespace Idio
 			"Got impatient");
 
 		auto imgres = m_context.get_device().acquireNextImageKHR(m_swapchain, intmax, m_imageAvailSems[m_currentFrame]);
-		if(imgres.result == vk::Result::eSuboptimalKHR 
-			|| imgres.result == vk::Result::eErrorOutOfDateKHR) {
-			
+		if(imgres.result == vk::Result::eSuboptimalKHR || imgres.result == vk::Result::eErrorOutOfDateKHR) {
 			recreate();
 			return false;
 		} else if(imgres.result != vk::Result::eSuccess) {
 			s_EngineLogger->critical("Failed to render frame");
-			crash();
+			Application::crash();
 		}
 
 		m_context.get_device().resetFences({ currentfence });
@@ -84,12 +84,10 @@ namespace Idio
 		const vk::PhysicalDevice pdev = m_context.get_physdev().handle;
 
 		auto surfformats = pdev.getSurfaceFormatsKHR(m_surface).value;
-		auto surfit = std::find_if(surfformats.begin(), surfformats.end(), 
+		auto surfit = std::find_if(surfformats.begin(), surfformats.end(),
 			[](vk::SurfaceFormatKHR fmt) -> bool {
-				return (fmt.format ==  vk::Format::eB8G8R8Srgb 
-					&& fmt.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear);
-			}
-		);
+				return (fmt.format == vk::Format::eB8G8R8Srgb && fmt.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear);
+			});
 
 		if(surfit != surfformats.end()) {
 			m_format = *surfit;
@@ -104,7 +102,7 @@ namespace Idio
 			if(pif != presentmodes.end()) {
 				m_pmode = *pif;
 			} else {
-				s_EngineLogger->warning("VSync was requested but not supported, weird?");
+				s_EngineLogger->warn("VSync was requested but not supported, weird?");
 			}
 		}
 
@@ -120,26 +118,26 @@ namespace Idio
 				static_cast<uint32_t>(height)
 			};
 
-			m_extent.width = std::clamp(m_extent.width, caps.minImageExtent.width, 
+			m_extent.width = std::clamp(m_extent.width, caps.minImageExtent.width,
 				caps.maxImageExtent.width);
-			m_extent.height = std::clamp(m_extent.height, caps.minImageExtent.height, 
+			m_extent.height = std::clamp(m_extent.height, caps.minImageExtent.height,
 				caps.maxImageExtent.height);
 		}
 
-		vk::SwapchainCreateInfoKHR ci{};
-		ci.surface			= m_surface;
-		ci.minImageCount	= imageCount;
-		ci.imageFormat		= m_format.format;
-		ci.imageColorSpace	= m_format.colorSpace;
-		ci.imageExtent		= m_extent;
+		vk::SwapchainCreateInfoKHR ci {};
+		ci.surface = m_surface;
+		ci.minImageCount = imageCount;
+		ci.imageFormat = m_format.format;
+		ci.imageColorSpace = m_format.colorSpace;
+		ci.imageExtent = m_extent;
 		ci.imageArrayLayers = 1;
-		ci.imageUsage		= vk::ImageUsageFlagBits::eColorAttachment;
+		ci.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
 		ci.imageSharingMode = vk::SharingMode::eExclusive;
-		ci.preTransform		= caps.currentTransform;
-		ci.compositeAlpha	= vk::CompositeAlphaFlagBitsKHR::eOpaque;
-		ci.presentMode		= m_pmode;
-		ci.clipped			= true;
-		ci.oldSwapchain		= m_swapchain;
+		ci.preTransform = caps.currentTransform;
+		ci.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+		ci.presentMode = m_pmode;
+		ci.clipped = true;
+		ci.oldSwapchain = m_swapchain;
 		m_swapchain = check_vk(m_context.get_device().createSwapchainKHR(ci), "Failed to create swapchain");
 		if(ci.oldSwapchain) {
 			m_context.get_device().destroySwapchainKHR(ci.oldSwapchain);
@@ -149,21 +147,21 @@ namespace Idio
 		m_swapchainImageViews.resize(imageCount);
 		for(uint32_t i = 0; i < imageCount; i++) {
 			vk::ImageViewCreateInfo ici {};
-			ici.image							= m_swapchainImages[i];
-			ici.format							= m_format.format;
-			ici.viewType						= vk::ImageViewType::e2D;
-			ici.components						= { vk::ComponentSwizzle::eIdentity };
-			ici.subresourceRange.aspectMask		= vk::ImageAspectFlagBits::eColor;
-			ici.subresourceRange.baseMipLevel   = 0;
-			ici.subresourceRange.levelCount		= 1;
+			ici.image = m_swapchainImages[i];
+			ici.format = m_format.format;
+			ici.viewType = vk::ImageViewType::e2D;
+			ici.components = { vk::ComponentSwizzle::eIdentity };
+			ici.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+			ici.subresourceRange.baseMipLevel = 0;
+			ici.subresourceRange.levelCount = 1;
 			ici.subresourceRange.baseArrayLayer = 0;
-			ici.subresourceRange.layerCount		= 1;
-			m_swapchainImageViews[i] = check_vk(m_context.get_device().createImageView(ici), 
+			ici.subresourceRange.layerCount = 1;
+			m_swapchainImageViews[i] = check_vk(m_context.get_device().createImageView(ici),
 				"Failed to create swapchain image views");
 		}
 	}
 
-	void Swapchain::present(const Context& c, std::vector<Swapchain*>& scs)
+	void Swapchain::present(const Context &c, std::vector<Swapchain *> &scs)
 	{
 		std::vector<vk::SwapchainKHR> swaps(scs.size());
 		std::vector<uint32_t> imgidxs(scs.size());
@@ -175,18 +173,16 @@ namespace Idio
 			waitSems[i] = c.get_gfx_queue_finish_sems()[sc->get_current_frame_index()];
 		}
 
-		vk::PresentInfoKHR pi{};
-		pi.waitSemaphoreCount   = static_cast<uint32_t>(waitSems.size());
-		pi.pWaitSemaphores      = waitSems.data();
-		pi.swapchainCount       = static_cast<uint32_t>(swaps.size());
-		pi.pSwapchains          = swaps.data();
-		pi.pImageIndices        = imgidxs.data();
+		vk::PresentInfoKHR pi {};
+		pi.waitSemaphoreCount = static_cast<uint32_t>(waitSems.size());
+		pi.pWaitSemaphores = waitSems.data();
+		pi.swapchainCount = static_cast<uint32_t>(swaps.size());
+		pi.pSwapchains = swaps.data();
+		pi.pImageIndices = imgidxs.data();
 		vk::Result pres = c.get_gfx_queue().presentKHR(pi); // Let's just hope the resize signal propogates 🙃
-		if(pres != vk::Result::eSuccess 
-			&& pres != vk::Result::eSuboptimalKHR && pres != vk::Result::eErrorOutOfDateKHR) {
-			
+		if(pres != vk::Result::eSuccess && pres != vk::Result::eSuboptimalKHR && pres != vk::Result::eErrorOutOfDateKHR) {
 			s_EngineLogger->critical("Failed to present");
-			crash();
+			Application::crash();
 		}
 
 		for(auto sc : scs) {

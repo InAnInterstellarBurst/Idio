@@ -6,16 +6,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
+#ifndef IDIO_GFX_VKUTL_H
+#define IDIO_GFX_VKUTL_H
 
-namespace Idio
+namespace idio
 {
 	template<typename T>
-	[[nodiscard]] T check_vk(const vk::ResultValue<T>& rv, std::string_view msg)
+	[[nodiscard]] T check_vk(const vk::ResultValue<T> &rv, std::string_view msg)
 	{
 		if(rv.result != vk::Result::eSuccess) {
 			s_EngineLogger->critical("[Vulkan]: {}, {}", vk::to_string(rv.result), msg);
-			crash();
+			Application::crash();
 		}
 
 		return rv.value;
@@ -25,12 +26,14 @@ namespace Idio
 	{
 		if(r != vk::Result::eSuccess) {
 			s_EngineLogger->critical("[Vulkan]: {}, {}", vk::to_string(r), msg);
-			crash();
+			Application::crash();
 		}
 	}
 
 	inline void check_vk(VkResult r, std::string_view msg)
 	{
-		check_vk(vk::Result{r}, msg);
+		check_vk(vk::Result { r }, msg);
 	}
 }
+
+#endif

@@ -6,13 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
+#ifndef IDIO_GFX_PIPELINE_H
+#define IDIO_GFX_PIPELINE_H
 
-namespace Idio
+namespace idio
 {
 	class Swapchain;
 
-	std::optional<std::vector<uint32_t>> load_shader_from_disk(const std::string& pth);
+	std::optional<std::vector<uint32_t>> load_shader_from_disk(const std::string &pth);
 
 	struct VertexLayout
 	{
@@ -47,7 +48,7 @@ namespace Idio
 		bool primitiveRestart = false;
 		vk::PolygonMode polyMode = vk::PolygonMode::eFill;
 		vk::PrimitiveTopology topology = vk::PrimitiveTopology::eTriangleList;
-		
+
 		std::vector<VertexLayout> vertexLayouts;
 		std::vector<AttributeDescription> attributeDescs;
 	};
@@ -55,7 +56,7 @@ namespace Idio
 	class Pipeline
 	{
 	public:
-		Pipeline(vk::Device dev, const Swapchain& sc, const PipelineCreateInfo& pci);
+		Pipeline(vk::Device dev, const Swapchain &sc, const PipelineCreateInfo &pci);
 		~Pipeline();
 
 		void reset();
@@ -63,7 +64,7 @@ namespace Idio
 		void unbind_cmd(vk::CommandBuffer buf) const;
 	private:
 		vk::Device m_dev;
-		const Swapchain& m_swapchain;
+		const Swapchain &m_swapchain;
 
 		vk::Pipeline m_handle;
 		vk::PipelineLayout m_layout;
@@ -74,3 +75,5 @@ namespace Idio
 		void create_framebuffers();
 	};
 }
+
+#endif

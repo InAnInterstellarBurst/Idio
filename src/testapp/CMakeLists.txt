@@ -10,13 +10,11 @@ if(WIN32)
 	set(EXEFLAG WIN32)
 endif()
 
+set(SHADERS shaders/basic.frag shaders/basic.vert)
+
 set(SRCS
 	main.cpp
 	.licenseheader
-)
-
-set(SHADERS
-	shaders/basic.vert shaders/basic.frag
 )
 
 add_executable(testapp ${EXEFLAG} ${SRCS})

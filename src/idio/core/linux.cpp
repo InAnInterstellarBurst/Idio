@@ -7,11 +7,9 @@
  */
 
 #include "pch.hpp"
-#include "app.hpp"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	std::span<char*> args(argv, static_cast<size_t>(argc));
-	Idio::main(args);
+	idio_main(argc, argv);
 	return EXIT_SUCCESS;
 }

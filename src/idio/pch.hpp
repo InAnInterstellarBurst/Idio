@@ -6,6 +6,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#ifndef IDIO_PCH_H
+#define IDIO_PCH_H
+
 #include <span>
 #include <array>
 #include <tuple>
@@ -24,6 +27,8 @@
 #include <vk_mem_alloc.h>
 
 #include <SDL.h>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
-#include "core/logger.hpp"
+#include "core/app.hpp"
+
+#endif

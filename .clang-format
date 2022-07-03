@@ -1,0 +1,55 @@
+﻿---
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveMacros: 'true'
+AlignConsecutiveAssignments: 'false'
+AlignEscapedNewlines: Right
+SpaceBeforeParens: Never
+AlignOperands: 'false'
+AlignTrailingComments: 'false'
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: 'false'
+AlwaysBreakTemplateDeclarations: 'Yes'
+BreakBeforeTernaryOperators: 'false'
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+CompactNamespaces: 'true'
+Cpp11BracedListStyle: 'false'
+FixNamespaceComments: 'false'
+IncludeBlocks: Regroup
+IndentCaseLabels: 'false'
+IndentWidth: '4'
+Language: Cpp
+SortIncludes: 'false'
+ColumnLimit: 0
+MaxEmptyLinesToKeep: '2'
+NamespaceIndentation: All
+PointerAlignment: Right
+ReflowComments: 'false'
+SpaceAfterCStyleCast: 'false'
+AccessModifierOffset: -4
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: Never
+SpaceAfterTemplateKeyword: 'false'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeCpp11BracedList: 'true'
+SpaceBeforeCtorInitializerColon: 'true'
+Standard: Auto
+TabWidth: '4'
+UseTab: Always
+BraceWrapping:
+  AfterClass:      'true'
+  AfterControlStatement: 'false'
+  AfterEnum:       'true'
+  AfterFunction:   'true'
+  AfterNamespace:  'true'
+  AfterStruct:     'true'
+  AfterUnion:      'true'
+  BeforeCatch:     'false'
+  BeforeElse:      'false'
+  IndentBraces:    'false'
+BreakBeforeBraces: 'Custom'
+...

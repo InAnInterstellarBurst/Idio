@@ -6,7 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
+#ifndef IDIO_IDIO_H
+#define IDIO_IDIO_H
 
 #include <span>
 #include <array>
@@ -25,10 +26,12 @@
 #include <vk_mem_alloc.h>
 
 #include <SDL.h>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "core/app.hpp"
 #include "gfx/vkutl.hpp"
 #include "gfx/context.hpp"
 #include "gfx/swapchain.hpp"
 #include "gfx/pipeline.hpp"
+
+#endif

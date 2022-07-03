@@ -11,24 +11,25 @@
 #include "gfx/context.hpp"
 #include "gfx/swapchain.hpp"
 
-namespace Idio
+namespace idio
 {
-	Window::Window(const WindowCreateInfo& wci) noexcept : m_vsync(wci.vsync)
+	Window::Window(const WindowCreateInfo &wci) :
+		m_vsync(wci.vsync)
 	{
 		uint32_t winflags = SDL_WINDOW_VULKAN;
 		if(wci.borderless) {
 			winflags |= SDL_WINDOW_BORDERLESS;
 		}
-		
+
 		if(wci.resizeable) {
 			winflags |= SDL_WINDOW_RESIZABLE;
 		}
 
-		auto[x, y] = wci.position;
+		auto [x, y] = wci.position;
 		m_handle = SDL_CreateWindow(wci.title, x, y, wci.width, wci.height, winflags);
 		if(m_handle == nullptr) {
 			s_EngineLogger->critical("Failed to create window: {}", SDL_GetError());
-			crash();
+			Application::crash();
 		}
 
 		m_id = SDL_GetWindowID(m_handle);
@@ -40,16 +41,16 @@ namespace Idio
 		delete m_swapchain;
 		SDL_DestroyWindow(m_handle);
 	}
-	
-	void Window::post_close_evt() const noexcept
+
+	void Window::post_close_evt() const
 	{
-		SDL_Event close{ .type = SDL_WINDOWEVENT };
+		SDL_Event close { .type = SDL_WINDOWEVENT };
 		close.window.event = SDL_WINDOWEVENT_CLOSE;
 		close.window.windowID = m_id;
 		SDL_PushEvent(&close);
 	}
-	
-	void Window::set_fullscreen_state(FullscreenState s) noexcept
+
+	void Window::set_fullscreen_state(FullscreenState s)
 	{
 		if(s == m_fullscrState) {
 			return;
@@ -66,7 +67,7 @@ namespace Idio
 		m_fullscrState = s;
 	}
 
-	void Window::create_swapchain(const Context& c)
+	void Window::create_swapchain(const Context &c)
 	{
 		if(m_swapchain == nullptr) {
 			m_swapchain = new Swapchain(c, *this);

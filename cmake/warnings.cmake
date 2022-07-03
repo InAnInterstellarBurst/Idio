@@ -9,7 +9,6 @@ function(set_project_warnings project_name)
 		/GR-
 		/wd5105 # Disable some obscure warning windows.h adds
 		/wd4100 # Disable unused param warnings
-		/wd4127 # Disable constant expression warning
 
 		/W4 # Baseline reasonable warnings
 		/w14242 # 'identifier': conversion from 'type1' to 'type1', possible loss of data
@@ -39,7 +38,7 @@ function(set_project_warnings project_name)
 		-Wall
 		-Wextra # reasonable and standard
 		-Wshadow # warn the user if a variable declaration shadows one from a parent context
-		-Wundef
+		-Wundef # Warn on use of undefined macros
 		-Wunused # warn on anything being unused
 		-Wpedantic # warn if non-standard C/C++ is used
 		-Woverloaded-virtual # warn if you overload (not override) a virtual function
@@ -56,8 +55,8 @@ function(set_project_warnings project_name)
 
 	set(GCC_WARNINGS
 		${CLANG_WARNINGS}
-		-Wredundant-move # IDK how moves work
-		-Wpessimizing-move
+		-Wredundant-move # beep boop
+		-Wpessimizing-move # warn if move prevents RVO
 		-Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
 		-Wduplicated-cond # warn if if / else chain has duplicated conditions
 		-Wduplicated-branches # warn if if / else branches have duplicated code

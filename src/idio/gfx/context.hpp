@@ -6,32 +6,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
+#ifndef IDIO_GFX_CONTEXT_H
+#define IDIO_GFX_CONTEXT_H
 
-namespace Idio
+namespace idio
 {
 	class Window;
 	class Pipeline;
 	class Swapchain;
-	struct Version;
 
 	constexpr const uint32_t s_MaxFramesProcessing = 3;
 
 	struct PhysicalDevice
 	{
 		vk::PhysicalDevice handle = nullptr;
-		vk::PhysicalDeviceProperties props{};
-		vk::PhysicalDeviceFeatures supportedFeatures{};
+		vk::PhysicalDeviceProperties props {};
+		vk::PhysicalDeviceFeatures supportedFeatures {};
 		uint32_t gfxQueueFamilyIdx = std::numeric_limits<uint32_t>::max();
 
 		PhysicalDevice() = default;
-		PhysicalDevice(vk::PhysicalDevice pdev) noexcept 
-			: handle(pdev), props(handle.getProperties()), 
-			supportedFeatures(handle.getFeatures()) // Implicit on purpose
+		PhysicalDevice(vk::PhysicalDevice pdev) :
+			handle(pdev),
+			props(handle.getProperties()),
+			supportedFeatures(handle.getFeatures())
 		{
 			auto qfprops = handle.getQueueFamilyProperties();
 			uint32_t i = 0;
-			for(const auto& qfp : qfprops) {
+			for(const auto &qfp : qfprops) {
 				if(qfp.queueCount == 0) {
 					i++;
 					continue;
@@ -45,7 +46,7 @@ namespace Idio
 			}
 		}
 
-		constexpr bool operator<(const PhysicalDevice& other) const noexcept
+		constexpr bool operator<(const PhysicalDevice &other) const noexcept
 		{
 			constexpr auto uintmax = std::numeric_limits<uint32_t>::max();
 			if(gfxQueueFamilyIdx == uintmax && other.gfxQueueFamilyIdx != uintmax) {
@@ -63,14 +64,14 @@ namespace Idio
 	class Context
 	{
 	public:
-		Context(const Version& v, const std::string& appname, const Window& w);
+		Context(const Version &v, const std::string &appname, const Window &w);
 		~Context();
 
 		void begin_cmd(vk::CommandBuffer buf) const;
 		void end_cmd(vk::CommandBuffer buf) const;
 		void draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const;
-		
-		void submit_gfx_queue(const Swapchain& sc, const std::vector<vk::CommandBuffer>& cbufs);
+
+		void submit_gfx_queue(const Swapchain &sc, const std::vector<vk::CommandBuffer> &cbufs);
 
 		vk::Instance get_instance() const noexcept { return m_instance; }
 		vk::Device get_device() const noexcept { return m_device; }
@@ -98,7 +99,7 @@ namespace Idio
 	class CommandPool
 	{
 	public:
-		explicit CommandPool(const Context& c, bool transient = false);
+		explicit CommandPool(const Context &c, bool transient = false);
 		~CommandPool();
 
 		void reset();
@@ -108,3 +109,5 @@ namespace Idio
 		vk::CommandPool m_handle;
 	};
 }
+
+#endif
