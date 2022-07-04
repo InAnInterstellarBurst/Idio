@@ -71,6 +71,7 @@ namespace idio
 		void end_cmd(vk::CommandBuffer buf) const;
 		void draw_cmd(vk::CommandBuffer buf, uint32_t vertCount) const;
 
+		void submit_gfx_queue(const std::vector<vk::CommandBuffer> &cbufs, vk::Fence fence);
 		void submit_gfx_queue(const Swapchain &sc, const std::vector<vk::CommandBuffer> &cbufs);
 
 		vk::Instance get_instance() const noexcept { return m_instance; }

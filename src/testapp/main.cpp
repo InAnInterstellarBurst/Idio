@@ -8,6 +8,7 @@
 
 #include <idio/idio.hpp>
 #include <glm/glm.hpp>
+#include <idio/gfx/vkutl.hpp>
 
 using namespace idio;
 
@@ -31,6 +32,7 @@ public:
 	~App()
 	{
 		check_vk(m_context->get_device().waitIdle(), "Got impatient?");
+		m_context->get_device().destroyFence(m_fence);
 	}
 protected:
 	void init()
@@ -79,18 +81,39 @@ protected:
 			{ 0.5f, 0.5f, 1.0f, 1.0f, 0.0f },
 			{ -0.5f, 0.0f, 1.0f, 1.0f, 1.0f }
 		};
+
+		m_vbuf = std::make_shared<VertexBuffer<BufferUse::Gpu>>(*m_context, sizeof(Vertex) * 3);
+		m_stagevbuf = std::make_shared<VertexBuffer<BufferUse::Staging>>(*m_context, sizeof(Vertex) * 3);
+		m_stagevbuf->write(verts.data(), sizeof(Vertex) * 3, 0);
+
+		vk::FenceCreateInfo fci {};
+		m_fence = check_vk(m_context->get_device().createFence(fci), "Aye");
+
+		m_transferbuf = m_cmdpool->get_buffers(1)[0];
+		m_context->begin_cmd(m_transferbuf);
+		m_vbuf->copy_from(m_transferbuf, *m_stagevbuf, sizeof(Vertex) * 3, 0, 0);
+		m_context->end_cmd(m_transferbuf);
+		m_context->submit_gfx_queue({ m_transferbuf }, m_fence);
 	}
 
 	void tick()
 	{
+		check_vk(m_context->get_device().waitForFences(m_fence, true, 1000000), "Wait");
+		check_vk(m_context->get_device().resetFences(m_fence), "Aye");
+
 		auto cmdbuf = m_cmdbufs[m_mainWindow->get_swapchain().get_current_frame_index()];
 		cmdbuf.reset();
 		m_context->begin_cmd(cmdbuf);
 		m_pipeline->bind_cmd(cmdbuf);
+		VertexBuffer<BufferUse::Gpu>::bind(cmdbuf, { m_vbuf }, { 0 });
 		m_context->draw_cmd(cmdbuf, 3);
 		m_pipeline->unbind_cmd(cmdbuf);
 		m_context->end_cmd(cmdbuf);
 		m_context->submit_gfx_queue(m_mainWindow->get_swapchain(), { cmdbuf });
+
+		Vertex v { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f };
+		m_stagevbuf->write(&v, sizeof(Vertex), sizeof(Vertex));
+		m_context->submit_gfx_queue({ m_transferbuf }, m_fence);
 
 		static std::vector<Swapchain *> scs { &m_mainWindow->get_swapchain() };
 		Swapchain::present(*m_context, scs);
@@ -111,6 +134,11 @@ protected:
 			[](const WindowMinimiseEvent &me) -> bool { return true; });
 	}
 private:
+	vk::Fence m_fence;
+	std::shared_ptr<VertexBuffer<BufferUse::Gpu>> m_vbuf;
+	std::shared_ptr<VertexBuffer<BufferUse::Staging>> m_stagevbuf;
+
+	vk::CommandBuffer m_transferbuf;
 	std::unique_ptr<Pipeline> m_pipeline;
 	std::unique_ptr<CommandPool> m_cmdpool;
 	std::vector<vk::CommandBuffer> m_cmdbufs;

@@ -165,6 +165,14 @@ namespace idio
 		buf.draw(vertCount, 1, 0, 0);
 	}
 
+	void Context::submit_gfx_queue(const std::vector<vk::CommandBuffer> &cbufs, vk::Fence fence)
+	{
+		vk::SubmitInfo si {};
+		si.commandBufferCount = static_cast<uint32_t>(cbufs.size());
+		si.pCommandBuffers = cbufs.data();
+		check_vk(m_gfxQueue.submit(si, fence), "Failed to submit gfx");
+	}
+
 	void Context::submit_gfx_queue(const Swapchain &sc, const std::vector<vk::CommandBuffer> &cbufs)
 	{
 		auto fi = sc.get_current_frame_index();

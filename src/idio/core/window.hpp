@@ -42,11 +42,8 @@ namespace idio
 	public:
 		Window(const WindowCreateInfo &wci) noexcept;
 		~Window();
-
-		Window(Window &o) = delete; // Don't copy windows around you dumb fuck
-		Window &operator=(Window &o) = delete;
-		Window(Window &&o) = default;
-		Window &operator=(Window &&o) = default;
+		Window(const Window &o) = delete;
+		Window &operator=(const Window &o) = delete;
 
 		void post_close_evt() const;
 		void set_fullscreen_state(FullscreenState s);

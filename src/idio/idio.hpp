@@ -33,5 +33,6 @@
 #include "gfx/context.hpp"
 #include "gfx/swapchain.hpp"
 #include "gfx/pipeline.hpp"
+#include "gfx/buffer.hpp"
 
 #endif
