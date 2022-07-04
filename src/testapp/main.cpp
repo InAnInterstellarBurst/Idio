@@ -77,9 +77,9 @@ protected:
 		m_cmdbufs = m_cmdpool->get_buffers(s_MaxFramesProcessing);
 
 		const std::vector<Vertex> verts {
-			{ 0.0f, -0.5f, 1.0f, 0.0f, 0.0f },
+			{ 0.5f, -0.5f, 1.0f, 0.0f, 0.0f },
 			{ 0.5f, 0.5f, 1.0f, 1.0f, 0.0f },
-			{ -0.5f, 0.0f, 1.0f, 1.0f, 1.0f }
+			{ -0.5f, -0.5f, 1.0f, 1.0f, 1.0f }
 		};
 
 		m_vbuf = std::make_shared<VertexBuffer<BufferUse::Gpu>>(*m_context, sizeof(Vertex) * 3);
@@ -111,7 +111,7 @@ protected:
 		m_context->end_cmd(cmdbuf);
 		m_context->submit_gfx_queue(m_mainWindow->get_swapchain(), { cmdbuf });
 
-		Vertex v { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f };
+		Vertex v { 0.5f, 0.5f, 0.0f, 0.0f, 0.0f };
 		m_stagevbuf->write(&v, sizeof(Vertex), sizeof(Vertex));
 		m_context->submit_gfx_queue({ m_transferbuf }, m_fence);
 
