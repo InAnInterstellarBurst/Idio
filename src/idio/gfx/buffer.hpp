@@ -40,6 +40,8 @@ namespace idio
 			if constexpr(Use == BufferUse::Staging) {
 				uint8_t *dst = static_cast<uint8_t *>(m_mappedData) + offset;
 				std::memcpy(dst, data, sz);
+			} else {
+				s_EngineLogger->warn("Cannot write to gpu side buffer");
 			}
 		}
 
